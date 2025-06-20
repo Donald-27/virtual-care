@@ -1,6 +1,108 @@
+# models.py
+
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.ext.associationproxy import association_proxy
 
 from config import db
 
+# Association tables for many-to-many symptom tags
+appointment_symptoms = db.Table(
+    'appointment_symptoms',
+    db.Column('appointment_id', db.Integer, db.ForeignKey('appointments.id')),
+    db.Column('symptom_id', db.Integer, db.ForeignKey('symptoms.id'))
+)
+
+emergency_symptoms = db.Table(
+    'emergency_symptoms',
+    db.Column('emergency_id', db.Integer, db.ForeignKey('emergencies.id')),
+    db.Column('symptom_id', db.Integer, db.ForeignKey('symptoms.id'))
+)
 # Models go here!
+
+
+# Doctor model
+class Doctor(db.Model, SerializerMixin):
+    __tablename__ = 'doctors'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    department = db.Column(db.String)  # e.g., Pediatrics, Cardiology
+
+    # Relationships
+    appointments = db.relationship('Appointment', backref='doctor')
+    availabilities = db.relationship('DoctorAvailability', backref='doctor')
+    notes = db.relationship('DoctorNote', backref='doctor')
+
+    serialize_rules = ('-appointments.doctor', '-availabilities.doctor', '-notes.doctor')
+
+# Doctor availability model
+class DoctorAvailability(db.Model, SerializerMixin):
+    __tablename__ = 'availabilities'
+
+    id = db.Column(db.Integer, primary_key=True)
+    doctor_id = db.Column(db.Integer, db.ForeignKey('doctors.id'))
+    day_of_week = db.Column(db.String)  # e.g., 'Monday'
+    start_time = db.Column(db.String)   # e.g., '09:00'
+    end_time = db.Column(db.String)     # e.g., '17:00'
+
+# Patient model
+class Patient(db.Model, SerializerMixin):
+    __tablename__ = 'patients'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+
+    appointments = db.relationship('Appointment', backref='patient')
+    emergencies = db.relationship('EmergencyRequest', backref='patient')
+
+    serialize_rules = ('-appointments.patient', '-emergencies.patient',)
+
+# Appointment model
+class Appointment(db.Model, SerializerMixin):
+    __tablename__ = 'appointments'
+
+    id = db.Column(db.Integer, primary_key=True)
+    doctor_id = db.Column(db.Integer, db.ForeignKey('doctors.id'))
+    patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'))
+    date = db.Column(db.String)
+    time = db.Column(db.String)
+    status = db.Column(db.String, default="Pending")  # Status: Pending, Confirmed, etc.
+
+    # Tags
+    symptoms = db.relationship('Symptom', secondary=appointment_symptoms, backref='appointments')
+
+    # One doctor note per appointment
+    note = db.relationship('DoctorNote', backref='appointment', uselist=False)
+
+# Emergency request model
+class EmergencyRequest(db.Model, SerializerMixin):
+    __tablename__ = 'emergencies'
+
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'))
+    description = db.Column(db.String)
+    urgency_level = db.Column(db.String, default="Medium")  # Low, Medium, High, Critical
+
+    # Tags
+    symptoms = db.relationship('Symptom', secondary=emergency_symptoms, backref='emergencies')
+
+# Symptom model
+class Symptom(db.Model, SerializerMixin):
+    __tablename__ = 'symptoms'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+
+# Doctor note model
+class DoctorNote(db.Model, SerializerMixin):
+    __tablename__ = 'doctor_notes'
+
+    id = db.Column(db.Integer, primary_key=True)
+    appointment_id = db.Column(db.Integer, db.ForeignKey('appointments.id'))
+    doctor_id = db.Column(db.Integer, db.ForeignKey('doctors.id'))
+    content = db.Column(db.String)
+    signed_by = db.Column(db.String, nullable=True)
+    signed_at = db.Column(db.String, nullable=True)
+
+
+
