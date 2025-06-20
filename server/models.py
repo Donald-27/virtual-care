@@ -35,3 +35,13 @@ class Doctor(db.Model, SerializerMixin):
 
     serialize_rules = ('-appointments.doctor', '-availabilities.doctor', '-notes.doctor')
 
+# Doctor availability model
+class DoctorAvailability(db.Model, SerializerMixin):
+    __tablename__ = 'availabilities'
+
+    id = db.Column(db.Integer, primary_key=True)
+    doctor_id = db.Column(db.Integer, db.ForeignKey('doctors.id'))
+    day_of_week = db.Column(db.String)  # e.g., 'Monday'
+    start_time = db.Column(db.String)   # e.g., '09:00'
+    end_time = db.Column(db.String)     # e.g., '17:00'
+
