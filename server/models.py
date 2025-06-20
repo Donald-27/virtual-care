@@ -45,3 +45,15 @@ class DoctorAvailability(db.Model, SerializerMixin):
     start_time = db.Column(db.String)   # e.g., '09:00'
     end_time = db.Column(db.String)     # e.g., '17:00'
 
+# Patient model
+class Patient(db.Model, SerializerMixin):
+    __tablename__ = 'patients'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+
+    appointments = db.relationship('Appointment', backref='patient')
+    emergencies = db.relationship('EmergencyRequest', backref='patient')
+
+    serialize_rules = ('-appointments.patient', '-emergencies.patient',)
+
