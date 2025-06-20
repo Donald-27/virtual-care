@@ -32,7 +32,27 @@ with app.app_context():
     symptoms = [Symptom(name=name) for name in symptom_names]
     db.session.add_all(symptoms)
 
- 
+    # Add doctors
+    doctors = []
+    for _ in range(5):
+        doc = Doctor(
+            name=fake.name(),
+            department=choice(departments)
+        )
+        doctors.append(doc)
+    db.session.add_all(doctors)
+
+    # Add doctor availability
+    for doctor in doctors:
+        for day in ["Monday", "Tuesday", "Wednesday"]:
+            availability = DoctorAvailability(
+                doctor=doctor,
+                day_of_week=day,
+                start_time="09:00",
+                end_time="16:00"
+            )
+            db.session.add(availability)
+
    
     
    
