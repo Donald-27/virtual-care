@@ -13,3 +13,9 @@ from models import Doctor, Patient, Appointment, DoctorAvailability, EmergencyRe
 
 fake = Faker()
 
+departments = ["Cardiology", "Pediatrics", "Dermatology", "Neurology", "General Medicine"]
+symptom_names = ["Fever", "Headache", "Cough", "Fatigue", "Nausea"]
+
+with app.app_context():
+    print("🌱 Seeding database...")
+
