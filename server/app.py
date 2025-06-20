@@ -7,10 +7,6 @@ from models import Doctor, Patient, Appointment, DoctorNote, EmergencyRequest, S
 # Local imports
 from config import app, db, api
 
-# Import your models here if needed later
-# from models import Doctor, Patient, Appointment, ...
-
-# Views go here (for manual testing)
 @app.route('/')
 def index():
     return '<h1>VirtualCare Server is Running</h1>'
