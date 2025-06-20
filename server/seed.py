@@ -60,6 +60,17 @@ with app.app_context():
         patients.append(patient)
     db.session.add_all(patients)
 
-    
+    # Add appointments with notes
+    for _ in range(10):
+        appointment = Appointment(
+            doctor=choice(doctors),
+            patient=choice(patients),
+            date=fake.date_this_month().isoformat(),
+            time="10:00",
+            status=choice(["Pending", "Confirmed", "Completed"])
+        )
+        appointment.symptoms = [choice(symptoms)]
+        db.session.add(appointment)
+
    
   
