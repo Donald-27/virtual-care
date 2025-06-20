@@ -53,7 +53,13 @@ with app.app_context():
             )
             db.session.add(availability)
 
-   
+    # Add patients
+    patients = []
+    for _ in range(10):
+        patient = Patient(name=fake.name())
+        patients.append(patient)
+    db.session.add_all(patients)
+
     
    
   
