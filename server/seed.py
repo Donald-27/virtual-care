@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 # Standard library imports
-from random import randint, choice as rc
+from random import randint, choice
+
 
 # Remote library imports
 from faker import Faker
