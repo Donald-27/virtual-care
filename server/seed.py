@@ -72,5 +72,15 @@ with app.app_context():
         appointment.symptoms = [choice(symptoms)]
         db.session.add(appointment)
 
-   
+        # Add a doctor note only for completed
+        if appointment.status == "Completed":
+            note = DoctorNote(
+                appointment=appointment,
+                doctor=appointment.doctor,
+                content=fake.text(max_nb_chars=100),
+                signed_by=appointment.doctor.name,
+                signed_at=fake.date_time_this_month().isoformat()
+            )
+            db.session.add(note)
+
   
