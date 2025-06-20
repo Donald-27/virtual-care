@@ -81,7 +81,7 @@ class EmergencyRequest(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'))
     description = db.Column(db.String)
-    urgency_level = db.Column(db.String, default="Medium")  # Low, Medium, High, Critical
+    urgency_level = db.Column(db.String, default="Medium")  # urgency levels
 
     # Tags
     symptoms = db.relationship('Symptom', secondary=emergency_symptoms, backref='emergencies')
