@@ -94,4 +94,4 @@ with app.app_context():
         db.session.add(emergency)
 
     db.session.commit()
-    print("✅ Database seeded!")
+    print(" Database seeded!")
