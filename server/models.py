@@ -17,6 +17,7 @@ emergency_symptoms = db.Table(
     db.Column('emergency_id', db.Integer, db.ForeignKey('emergencies.id')),
     db.Column('symptom_id', db.Integer, db.ForeignKey('symptoms.id'))
 )
+
 # Models go here!
 
 
@@ -26,7 +27,7 @@ class Doctor(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    department = db.Column(db.String)  # e.g., Pediatrics, Cardiology
+    department = db.Column(db.String)  
 
     # Relationships
     appointments = db.relationship('Appointment', backref='doctor')
@@ -41,10 +42,9 @@ class DoctorAvailability(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     doctor_id = db.Column(db.Integer, db.ForeignKey('doctors.id'))
-    day_of_week = db.Column(db.String)  # e.g., 'Monday'
-    start_time = db.Column(db.String)   # e.g., '09:00'
-    end_time = db.Column(db.String)     # e.g., '17:00'
-
+    day_of_week = db.Column(db.String) 
+    start_time = db.Column(db.String)  
+    end_time = db.Column(db.String)     
 # Patient model
 class Patient(db.Model, SerializerMixin):
     __tablename__ = 'patients'
