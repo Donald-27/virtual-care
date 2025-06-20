@@ -17,7 +17,7 @@ departments = ["Cardiology", "Pediatrics", "Dermatology", "Neurology", "General 
 symptom_names = ["Fever", "Headache", "Cough", "Fatigue", "Nausea"]
 
 with app.app_context():
-    print("🌱 Seeding database...")
+    print("Seeding database...")
 
     # Clear existing data
     db.session.query(DoctorNote).delete()
