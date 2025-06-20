@@ -57,3 +57,20 @@ class Patient(db.Model, SerializerMixin):
 
     serialize_rules = ('-appointments.patient', '-emergencies.patient',)
 
+# Appointment model
+class Appointment(db.Model, SerializerMixin):
+    __tablename__ = 'appointments'
+
+    id = db.Column(db.Integer, primary_key=True)
+    doctor_id = db.Column(db.Integer, db.ForeignKey('doctors.id'))
+    patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'))
+    date = db.Column(db.String)
+    time = db.Column(db.String)
+    status = db.Column(db.String, default="Pending")  # Status: Pending, Confirmed, etc.
+
+    # Tags
+    symptoms = db.relationship('Symptom', secondary=appointment_symptoms, backref='appointments')
+
+    # One doctor note per appointment
+    note = db.relationship('DoctorNote', backref='appointment', uselist=False)
+
