@@ -3,7 +3,7 @@
 # Remote library imports
 from flask import request
 from flask_restful import Resource
-
+from models import Doctor, Patient, Appointment, DoctorNote, EmergencyRequest, Symptom, DoctorAvailability
 # Local imports
 from config import app, db, api
 
