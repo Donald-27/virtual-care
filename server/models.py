@@ -85,3 +85,24 @@ class EmergencyRequest(db.Model, SerializerMixin):
 
     # Tags
     symptoms = db.relationship('Symptom', secondary=emergency_symptoms, backref='emergencies')
+
+# Symptom model
+class Symptom(db.Model, SerializerMixin):
+    __tablename__ = 'symptoms'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+
+# Doctor note model
+class DoctorNote(db.Model, SerializerMixin):
+    __tablename__ = 'doctor_notes'
+
+    id = db.Column(db.Integer, primary_key=True)
+    appointment_id = db.Column(db.Integer, db.ForeignKey('appointments.id'))
+    doctor_id = db.Column(db.Integer, db.ForeignKey('doctors.id'))
+    content = db.Column(db.String)
+    signed_by = db.Column(db.String, nullable=True)
+    signed_at = db.Column(db.String, nullable=True)
+
+
+
