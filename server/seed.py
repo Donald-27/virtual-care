@@ -19,3 +19,14 @@ symptom_names = ["Fever", "Headache", "Cough", "Fatigue", "Nausea"]
 with app.app_context():
     print("🌱 Seeding database...")
 
+    # Clear existing data
+    db.session.query(DoctorNote).delete()
+    db.session.query(Appointment).delete()
+    db.session.query(EmergencyRequest).delete()
+    db.session.query(DoctorAvailability).delete()
+    db.session.query(Patient).delete()
+    db.session.query(Doctor).delete()
+    db.session.query(Symptom).delete()
+
+   
+  
