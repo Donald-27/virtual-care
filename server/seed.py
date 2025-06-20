@@ -83,4 +83,15 @@ with app.app_context():
             )
             db.session.add(note)
 
-  
+    # Add emergency cases
+    for _ in range(5):
+        emergency = EmergencyRequest(
+            patient=choice(patients),
+            description=fake.sentence(),
+            urgency_level=choice(["Low", "Medium", "High", "Critical"]),
+            symptoms=[choice(symptoms)]
+        )
+        db.session.add(emergency)
+
+    db.session.commit()
+    print("✅ Database seeded!")
