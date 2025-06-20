@@ -12,7 +12,6 @@ from config import db
 from models import Doctor, Patient, Appointment, DoctorAvailability, EmergencyRequest, Symptom, DoctorNote
 
 fake = Faker()
-
 departments = ["Cardiology", "Pediatrics", "Dermatology", "Neurology", "General Medicine"]
 symptom_names = ["Fever", "Headache", "Cough", "Fatigue", "Nausea"]
 
