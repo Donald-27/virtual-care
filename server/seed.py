@@ -92,6 +92,5 @@ with app.app_context():
             symptoms=[choice(symptoms)]
         )
         db.session.add(emergency)
-
     db.session.commit()
     print(" Database seeded!")
