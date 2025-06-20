@@ -74,3 +74,14 @@ class Appointment(db.Model, SerializerMixin):
     # One doctor note per appointment
     note = db.relationship('DoctorNote', backref='appointment', uselist=False)
 
+# Emergency request model
+class EmergencyRequest(db.Model, SerializerMixin):
+    __tablename__ = 'emergencies'
+
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'))
+    description = db.Column(db.String)
+    urgency_level = db.Column(db.String, default="Medium")  # Low, Medium, High, Critical
+
+    # Tags
+    symptoms = db.relationship('Symptom', secondary=emergency_symptoms, backref='emergencies')
