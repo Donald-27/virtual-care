@@ -12,11 +12,12 @@ from config import db
 from models import Doctor, Patient, Appointment, DoctorAvailability, EmergencyRequest, Symptom, DoctorNote
 
 fake = Faker()
+
 departments = ["Cardiology", "Pediatrics", "Dermatology", "Neurology", "General Medicine"]
 symptom_names = ["Fever", "Headache", "Cough", "Fatigue", "Nausea"]
 
 with app.app_context():
-    print("Seeding database...")
+    print("🌱 Seeding database...")
 
     # Clear existing data
     db.session.query(DoctorNote).delete()
@@ -27,5 +28,12 @@ with app.app_context():
     db.session.query(Doctor).delete()
     db.session.query(Symptom).delete()
 
+    # Add symptoms
+    symptoms = [Symptom(name=name) for name in symptom_names]
+    db.session.add_all(symptoms)
+
+ 
+   
+    
    
   
