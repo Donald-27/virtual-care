@@ -1,9 +1,4 @@
-#!/usr/bin/env python3
-
-# Standard library
 from random import choice
-
-# App and DB
 from app import app, db
 from faker import Faker
 from models import (
@@ -16,18 +11,13 @@ from models import (
     DoctorNote,
 )
 
-# Faker instance
 fake = Faker()
-
-# Sample data
 departments = ["Cardiology", "Pediatrics", "Dermatology", "Neurology", "General Medicine"]
 symptom_names = ["Fever", "Headache", "Cough", "Fatigue", "Nausea"]
 
-# Run inside Flask app context
 with app.app_context():
     print("Seeding database...")
 
-    # Clear existing data
     db.session.query(DoctorNote).delete()
     db.session.query(Appointment).delete()
     db.session.query(EmergencyRequest).delete()
@@ -36,11 +26,9 @@ with app.app_context():
     db.session.query(Doctor).delete()
     db.session.query(Symptom).delete()
 
-    # Add symptoms
     symptoms = [Symptom(name=name) for name in symptom_names]
     db.session.add_all(symptoms)
 
-    # Add doctors
     doctors = []
     for _ in range(5):
         doc = Doctor(
@@ -50,7 +38,6 @@ with app.app_context():
         doctors.append(doc)
     db.session.add_all(doctors)
 
-    # Add doctor availability
     for doctor in doctors:
         for day in ["Monday", "Tuesday", "Wednesday"]:
             availability = DoctorAvailability(
@@ -61,14 +48,11 @@ with app.app_context():
             )
             db.session.add(availability)
 
-    # Add patients
     patients = []
     for _ in range(10):
         patient = Patient(name=fake.name())
         patients.append(patient)
     db.session.add_all(patients)
-
-    # Add appointments with doctor notes
     for _ in range(10):
         appointment = Appointment(
             doctor=choice(doctors),
@@ -90,7 +74,6 @@ with app.app_context():
             )
             db.session.add(note)
 
-    # Add emergency requests
     for _ in range(5):
         emergency = EmergencyRequest(
             patient=choice(patients),
@@ -99,7 +82,5 @@ with app.app_context():
             symptoms=[choice(symptoms)]
         )
         db.session.add(emergency)
-
-    # Commit all to DB
     db.session.commit()
     print("Database seeded!")

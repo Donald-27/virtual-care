@@ -17,8 +17,6 @@ emergency_symptoms = db.Table(
 
 # Models go here!
 
-
-# Doctor model
 class Doctor(db.Model):
     __tablename__ = 'doctors'
 
@@ -26,7 +24,6 @@ class Doctor(db.Model):
     name = db.Column(db.String)
     department = db.Column(db.String)  
 
-    # Relationships
     appointments = db.relationship('Appointment', backref='doctor')
     availabilities = db.relationship('DoctorAvailability', backref='doctor')
     notes = db.relationship('DoctorNote', backref='doctor')
@@ -38,7 +35,6 @@ class Doctor(db.Model):
             "department": self.department
         }
 
-# Doctor availability model
 class DoctorAvailability(db.Model):
     __tablename__ = 'availabilities'
 
@@ -57,7 +53,6 @@ class DoctorAvailability(db.Model):
             "end_time": self.end_time
         }
 
-# Patient model
 class Patient(db.Model):
     __tablename__ = 'patients'
 
@@ -73,7 +68,6 @@ class Patient(db.Model):
             "name": self.name
         }
 
-# Appointment model
 class Appointment(db.Model):
     __tablename__ = 'appointments'
 
@@ -82,12 +76,10 @@ class Appointment(db.Model):
     patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'))
     date = db.Column(db.String)
     time = db.Column(db.String)
-    status = db.Column(db.String, default="Pending")  # Status: Pending, Confirmed, etc.
+    status = db.Column(db.String, default="Pending")
 
-    # Tags
     symptoms = db.relationship('Symptom', secondary=appointment_symptoms, backref='appointments')
 
-    # One doctor note per appointment
     note = db.relationship('DoctorNote', backref='appointment', uselist=False)
 
     def to_dict(self):
@@ -102,16 +94,14 @@ class Appointment(db.Model):
             "note": self.note.to_dict() if self.note else None
         }
 
-# Emergency request model
 class EmergencyRequest(db.Model):
     __tablename__ = 'emergencies'
 
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'))
     description = db.Column(db.String)
-    urgency_level = db.Column(db.String, default="Medium")  # urgency levels
+    urgency_level = db.Column(db.String, default="Medium") 
 
-    # Tags
     symptoms = db.relationship('Symptom', secondary=emergency_symptoms, backref='emergencies')
 
     def to_dict(self):
@@ -123,7 +113,6 @@ class EmergencyRequest(db.Model):
             "symptoms": [s.to_dict() for s in self.symptoms]
         }
 
-# Symptom model
 class Symptom(db.Model):
     __tablename__ = 'symptoms'
 
@@ -136,7 +125,6 @@ class Symptom(db.Model):
             "name": self.name
         }
 
-# Doctor note model
 class DoctorNote(db.Model):
     __tablename__ = 'doctor_notes'
 
