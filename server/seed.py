@@ -1,22 +1,29 @@
 #!/usr/bin/env python3
 
-# Standard library imports
-from random import randint, choice
+# Standard library
+from random import choice
 
-
-# Remote library imports
+# App and DB
+from app import app, db
 from faker import Faker
+from models import (
+    Doctor,
+    Patient,
+    Appointment,
+    DoctorAvailability,
+    EmergencyRequest,
+    Symptom,
+    DoctorNote,
+)
 
-# Local imports
-from app import app
-from config import db
-from models import Doctor, Patient, Appointment, DoctorAvailability, EmergencyRequest, Symptom, DoctorNote
-
+# Faker instance
 fake = Faker()
 
+# Sample data
 departments = ["Cardiology", "Pediatrics", "Dermatology", "Neurology", "General Medicine"]
 symptom_names = ["Fever", "Headache", "Cough", "Fatigue", "Nausea"]
 
+# Run inside Flask app context
 with app.app_context():
     print("Seeding database...")
 
@@ -61,7 +68,7 @@ with app.app_context():
         patients.append(patient)
     db.session.add_all(patients)
 
-    # Add appointments with notes
+    # Add appointments with doctor notes
     for _ in range(10):
         appointment = Appointment(
             doctor=choice(doctors),
@@ -73,7 +80,6 @@ with app.app_context():
         appointment.symptoms = [choice(symptoms)]
         db.session.add(appointment)
 
-        # Add a doctor note only for completed
         if appointment.status == "Completed":
             note = DoctorNote(
                 appointment=appointment,
@@ -84,7 +90,7 @@ with app.app_context():
             )
             db.session.add(note)
 
-    # Add emergency cases
+    # Add emergency requests
     for _ in range(5):
         emergency = EmergencyRequest(
             patient=choice(patients),
@@ -93,5 +99,7 @@ with app.app_context():
             symptoms=[choice(symptoms)]
         )
         db.session.add(emergency)
+
+    # Commit all to DB
     db.session.commit()
-    print(" Database seeded!")
+    print("Database seeded!")
