@@ -1,22 +1,11 @@
-#!/usr/bin/env python3
-
-# Import the main libraries
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
-# Create the Flask app
 app = Flask(__name__)
-
-# Connect to the database
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"  # You can change this if using another database
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-# Create the database object
 db = SQLAlchemy(app)
 
-# ============ MODELS =============
-
-# Doctor model
 class Doctor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
@@ -28,8 +17,6 @@ class Doctor(db.Model):
             "name": self.name,
             "department": self.department
         }
-
-# Patient model
 class Patient(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
