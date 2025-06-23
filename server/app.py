@@ -26,7 +26,7 @@ class Patient(db.Model):
             "id": self.id,
             "name": self.name
         }
-        class AppointmentsResource(Resource):
+class AppointmentsResource(Resource):
     def get(self):
         appointments = Appointment.query.all()
         return [appointment.to_dict() for appointment in appointments], 200
