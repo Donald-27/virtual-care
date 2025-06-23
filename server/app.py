@@ -26,9 +26,31 @@ class Patient(db.Model):
             "id": self.id,
             "name": self.name
         }
+        class AppointmentsResource(Resource):
+    def get(self):
+        appointments = Appointment.query.all()
+        return [appointment.to_dict() for appointment in appointments], 200
+
+    def post(self):
+        data = request.get_json()
+
+        new_appointment = Appointment(
+            doctor_id=data['doctor_id'],
+            patient_id=data['patient_id'],
+            date=data['date'],
+            time=data['time'],
+            status=data.get('status', 'Pending')  # optional
+        )
+
+        db.session.add(new_appointment)
+        db.session.commit()
+        return new_appointment.to_dict(), 201
+
+api.add_resource(AppointmentsResource, '/appointments')
+
 @app.route('/')
 def home():
-    return '<h1>VirtualCare Server is Running</h1>'
+    return '<h1>VirtualCare Server is running</h1>'
 
 @app.route('/doctors', methods=['GET'])
 def get_doctors():
