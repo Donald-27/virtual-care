@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchDoctorById } from '../api/api';
-
 export default function DoctorLogin() {
   const [doctorId, setDoctorId] = useState('');
   const [email, setEmail] = useState(''); 
@@ -25,6 +24,7 @@ export default function DoctorLogin() {
     }
   };
 
+  
   return (
     <div className="container">
       <h2>Doctor Login</h2>
