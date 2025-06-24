@@ -41,7 +41,6 @@ export default function BookingForm() {
       setMessage(' Failed to book appointment.');
     }
   };
-
   return (
     <div className="booking-container">
       <h2 className="booking-title">Book an Appointment</h2>
@@ -57,7 +56,6 @@ export default function BookingForm() {
             required
           />
         </label>
-
         <label>
           Select Doctor:
           <select
@@ -74,6 +72,7 @@ export default function BookingForm() {
           </select>
         </label>
 
+        
         <label>
           Appointment Date:
           <input
