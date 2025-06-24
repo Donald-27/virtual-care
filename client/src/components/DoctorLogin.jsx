@@ -24,7 +24,7 @@ export default function DoctorLogin() {
     }
   };
 
-  
+
   return (
     <div className="container">
       <h2>Doctor Login</h2>
@@ -38,6 +38,7 @@ export default function DoctorLogin() {
             required
           />
         </label>
+        
         <label>
           Email:
           <input
