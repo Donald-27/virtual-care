@@ -120,12 +120,10 @@
   background: #caf0f8;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .hero-content h1 {
     font-size: 36px;
   }
-
   .steps-section h2,
   .cta-section h2 {
     font-size: 24px;
