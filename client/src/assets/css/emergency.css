@@ -1,0 +1,66 @@
+.emergency-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 30px;
+  background: #fff4f4;
+  border: 1px solid #ffdddd;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.05);
+}
+
+.emergency-container h2 {
+  color: #cc0000;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.emergency-form label {
+  display: block;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.emergency-form input,
+.emergency-form textarea,
+.emergency-form select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.emergency-form textarea {
+  height: 100px;
+  resize: vertical;
+}
+
+.emergency-btn {
+  background-color: #e74c3c;
+  color: white;
+  font-size: 16px;
+  padding: 14px 20px;
+  margin-top: 20px;
+  border: none;
+  border-radius: 10px;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.emergency-btn:hover {
+  background-color: #c0392b;
+}
+
+.contact-options {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.contact-options .contact-btn {
+  text-align: center;
+  text-decoration: none;
+  font-weight: bold;
+}

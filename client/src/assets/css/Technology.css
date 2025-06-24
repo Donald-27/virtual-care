@@ -1,0 +1,72 @@
+/* src/assets/css/Technology.css */
+
+.tech-section {
+  background: linear-gradient(135deg, #e9f0fc, #fdfdff);
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.tech-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.tech-title {
+  font-size: 34px;
+  color: #084b83;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.tech-subtitle {
+  font-size: 18px;
+  color: #555;
+  margin-bottom: 50px;
+}
+
+.tech-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 30px;
+}
+
+.tech-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tech-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
+}
+
+.tech-icon {
+  width: 70px;
+  height: 70px;
+  margin-bottom: 20px;
+}
+
+.tech-card h3 {
+  font-size: 20px;
+  color: #003366;
+  margin-bottom: 10px;
+}
+
+.tech-card p {
+  font-size: 15px;
+  color: #444;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .tech-title {
+    font-size: 26px;
+  }
+
+  .tech-subtitle {
+    font-size: 16px;
+  }
+}
