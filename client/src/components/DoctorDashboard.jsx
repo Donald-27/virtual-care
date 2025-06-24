@@ -7,7 +7,6 @@ export default function DoctorDashboard() {
   const [appointments, setAppointments] = useState([]);
   const [emergencies, setEmergencies] = useState([]);
   const [error, setError] = useState('');
-
   useEffect(() => {
     const load = async () => {
       try {
@@ -22,7 +21,6 @@ export default function DoctorDashboard() {
     };
     load();
   }, [doctorId]);
-
   return (
     <div className="container">
       <h2>Doctor Dashboard (ID: {doctorId})</h2>
