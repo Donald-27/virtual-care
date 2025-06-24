@@ -5,7 +5,6 @@ import {
   createAppointment
 } from '../api/api';
 import '../assets/css/BookingForm.css';
-
 export default function BookingForm() {
   const [patientName, setPatientName] = useState('');
   const [doctors, setDoctors] = useState([]);
@@ -14,7 +13,6 @@ export default function BookingForm() {
   const [time, setTime] = useState('');
   const [additionalNotes, setAdditionalNotes] = useState('');
   const [message, setMessage] = useState('');
-
   useEffect(() => {
     fetchDoctors().then(data => setDoctors(data || []));
   }, []);
