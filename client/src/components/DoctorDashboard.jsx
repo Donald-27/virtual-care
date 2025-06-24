@@ -7,6 +7,7 @@ export default function DoctorDashboard() {
   const [appointments, setAppointments] = useState([]);
   const [emergencies, setEmergencies] = useState([]);
   const [error, setError] = useState('');
+
   useEffect(() => {
     const load = async () => {
       try {
