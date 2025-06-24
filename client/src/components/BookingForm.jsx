@@ -20,7 +20,6 @@ export default function BookingForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
-
     try {
       const patient = await createPatient({ name: patientName });
 
