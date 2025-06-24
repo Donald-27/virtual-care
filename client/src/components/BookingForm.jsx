@@ -16,13 +16,11 @@ export default function BookingForm() {
   useEffect(() => {
     fetchDoctors().then(data => setDoctors(data || []));
   }, []);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
     try {
       const patient = await createPatient({ name: patientName });
-
       const apptData = {
         patient_id: patient.id,
         doctor_id: parseInt(selectedDoctor),
@@ -32,7 +30,6 @@ export default function BookingForm() {
       };
 
       const appt = await createAppointment(apptData);
-
       setMessage(`Appointment created successfully (ID: ${appt.id})`);
       setPatientName('');
       setSelectedDoctor('');
