@@ -1,118 +1,103 @@
-/* Header.css */
-
-.main-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 30px;
-  background-color: #002d72;
-  color: white;
+.glass-header {
   position: sticky;
   top: 0;
-  z-index: 999;
-  flex-wrap: wrap;
+  width: 100%;
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
-.logo-container {
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 14px 24px;
   display: flex;
   align-items: center;
-  cursor: pointer;
+  justify-content: space-between;
 }
 
-.logo {
-  height: 40px;
-  margin-right: 10px;
-}
-
-.app-name {
-  font-size: 1.5rem;
+.logo a {
+  font-size: 1.7rem;
   font-weight: bold;
-  color: #ffffff;
+  color: #0077cc;
+  text-decoration: none;
 }
 
 .nav-links {
   display: flex;
   gap: 20px;
   align-items: center;
-  font-weight: 500;
 }
 
 .nav-links a {
-  color: white;
   text-decoration: none;
-  padding: 6px 10px;
-  border-radius: 5px;
-  transition: background 0.2s ease;
+  font-weight: 500;
+  color: #333;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.nav-links a::after {
+  content: "";
+  height: 2px;
+  width: 0%;
+  background: #0077cc;
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  transition: width 0.3s;
 }
 
 .nav-links a:hover {
-  background-color: rgba(255, 255, 255, 0.15);
+  color: #0077cc;
 }
 
-.header-buttons {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.nav-links a:hover::after {
+  width: 100%;
 }
 
-.emergency-btn {
-  background-color: #ff4d4d;
+.emergency {
+  background: linear-gradient(45deg, #ff4d4f, #ff0000);
   color: white;
-  padding: 10px 16px;
-  font-size: 15px;
   border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3);
-  transition: all 0.3s ease;
-}
-
-.emergency-btn:hover {
-  background-color: #cc0000;
-  transform: scale(1.05);
-}
-
-.login-btn {
-  background-color: #ffffff;
-  color: #002d72;
   padding: 10px 16px;
   font-weight: bold;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
-  border: none;
   transition: background 0.3s ease;
 }
 
-.login-btn:hover {
-  background-color: #d4e0ff;
+.emergency:hover {
+  background: linear-gradient(45deg, #e60000, #cc0000);
 }
 
-.hamburger {
+.menu-icon {
   display: none;
-  font-size: 24px;
+  font-size: 1.8rem;
+  margin-left: 16px;
   cursor: pointer;
 }
 
-/* Responsive nav */
+/* Responsive */
 @media (max-width: 768px) {
   .nav-links {
     display: none;
     flex-direction: column;
-    width: 100%;
-    background-color: #002d72;
+    background: rgba(255, 255, 255, 0.95);
     position: absolute;
-    top: 65px;
-    left: 0;
-    padding: 15px 0;
+    top: 64px;
+    right: 0;
+    padding: 20px;
+    width: 60%;
+    box-shadow: -2px 4px 10px rgba(0, 0, 0, 0.1);
   }
 
   .nav-links.open {
     display: flex;
   }
 
-  .hamburger {
+  .menu-icon {
     display: block;
-    margin-left: 10px;
   }
 }

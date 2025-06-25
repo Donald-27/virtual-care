@@ -1,0 +1,438 @@
+.home-page { font-family: sans-serif; color: #333; }
+.hero {
+  display: flex; align-items: center;
+  background: #fff; padding: 60px 20px;
+}
+.hero-text {
+  flex: 1;
+}
+.hero-text h1 {
+  font-size: 2rem; margin-bottom: 16px;
+}
+.hero-text p { font-size: 1rem; margin-bottom: 24px; }
+.hero-actions .btn-primary {
+  background: linear-gradient(90deg,#0066ff,#00ccff);
+  color: white; padding: 12px 20px; border-radius: 8px;
+  margin-right: 12px; text-decoration: none;
+}
+.hero-actions .btn-secondary {
+  background: #ff4d4f; color: white;
+  padding: 12px 20px; border-radius: 8px;
+  text-decoration: none;
+}
+.hero-img img {
+  width: 400px; border-radius: 8px;
+}
+
+/* Services summary */
+.summary-services {
+  padding: 60px 20px; background: #f8fbff;
+}
+.summary-services h2 {
+  text-align: center; font-size: 1.8rem; margin-bottom: 40px;
+}
+.summary-grid {
+  display: flex; align-items: center;
+  gap: 20px; flex-wrap: wrap;
+}
+.summary-card, .summary-detail {
+  flex: 1; min-width: 280px;
+}
+.summary-card img {
+  width: 100%; border-radius: 8px;
+}
+.summary-detail ul {
+  list-style: none; padding: 0;
+  margin: 16px 0;
+}
+.summary-detail li {
+  margin-bottom: 8px;
+}
+.summary-detail .btn-secondary {
+  background: #0066ff; color: white;
+  padding: 10px 16px; border-radius: 6px;
+  text-decoration: none;
+}
+
+/* How it works step section */
+.how-it-works {
+  padding: 60px 20px; background: white;
+}
+.how-it-works h2 {
+  text-align: center; font-size: 1.8rem; margin-bottom: 40px;
+}
+.steps-row {
+  display: flex; justify-content: space-around;
+  flex-wrap: wrap;
+}
+.step-item {
+  display: flex; flex-direction: column;
+  align-items: center; max-width: 200px;
+}
+.step-item img {
+  width: 120px; margin-bottom: 12px;
+}
+.step-item h4 {
+  text-align: center; font-size: 1rem; margin: 0;
+}
+
+/* Feature sections */
+.feature-block {
+  display: flex; align-items: center;
+  padding: 60px 20px; gap: 20px;
+}
+.feature-block.blue-solid {
+  background: #e6f2ff;
+}
+.feature-block.white {
+  background: white;
+}
+.feature-text {
+  flex: 1;
+}
+.feature-text h3 {
+  font-size: 1.5rem; margin-bottom: 12px;
+}
+.feature-text p { font-size: 1rem; color: #555; }
+.feature-block img {
+  width: 300px; border-radius: 8px;
+}
+
+/* Guide block */
+.blue-solid.light {
+  background: #f0f8ff; text-align: center;
+  padding: 40px 20px;
+}
+.blue-solid.light .btn-primary {
+  margin-top: 16px;
+  background: #0066ff; color: white;
+  padding: 10px 16px; border-radius: 6px;
+  text-decoration: none;
+}
+
+/* Footer */
+.footer-dark {
+  background: #001f3f; color: white;
+  padding: 60px 20px;
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr;
+  gap: 20px;
+}
+.footer-promo h3 {
+  margin-bottom: 12px; font-size: 1.4rem;
+}
+.footer-promo p { font-size: 1rem; }
+.footer-contact img {
+  width: 80px; border-radius: 50%;
+  margin-bottom: 8px;
+}
+.footer-links a {
+  display: block; color: #bbb;
+  text-decoration: none; margin-bottom: 6px;
+}
+.footer-links a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .hero { flex-direction: column; text-align: center; }
+  .hero-img img { width: 100%; margin-top: 24px; }
+  .feature-block { flex-direction: column; }
+  .footer-dark { grid-template-columns: 1fr; text-align: center; }
+}
+.how-card:hover {
+  transform: translateY(-4px);
+}
+.how-icon img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  margin-bottom: 12px;
+}
+.how-card h4 {
+  margin: 8px 0;
+  font-size: 1.1rem;
+  color: var(--primary);
+}
+.how-card p {
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+}
+.how-link {
+  text-decoration: none;
+  color: var(--white);
+  background-color: var(--primary);
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  transition: background 0.3s;
+}
+.how-link:hover {
+  background-color: var(--primary-light);
+}
+
+/* On larger screens, show in row */
+@media (min-width: 768px) {
+  .how-steps {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .how-card {
+    flex: 1 1 200px;
+    margin: 8px;
+  }
+}
+
+/* ================= GUIDE SECTION ================= */
+.guide-section {
+  background-color: var(--secondary);
+  padding: 40px 20px;
+}
+.guide-box {
+  background-color: var(--white);
+  border-radius: var(--radius);
+  padding: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.guide-box h3 {
+  margin-top: 0;
+  color: var(--dark);
+  font-size: 1.3rem;
+}
+.guide-box p {
+  margin: 16px 0;
+  color: var(--text-color);
+  font-size: 1rem;
+}
+.btn-outline {
+  display: inline-block;
+  padding: 8px 16px;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  border-radius: var(--radius);
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.3s;
+}
+.btn-outline:hover {
+  background-color: var(--primary-light);
+  color: var(--white);
+}
+
+/* ================= INFO BLOCK SECTION ================= */
+.info-block-section {
+  background-color: var(--white);
+  padding: 40px 20px;
+}
+.info-block {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 16px;
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+.info-image img {
+  width: 100%;
+  border-radius: var(--radius);
+  object-fit: cover;
+}
+.info-text {
+  text-align: center;
+}
+.info-text h3 {
+  color: var(--dark);
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+}
+.info-text p {
+  font-size: 1rem;
+  margin-bottom: 12px;
+}
+.btn-primary-sm {
+  background-color: var(--primary);
+  color: var(--white);
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: background 0.3s;
+}
+.btn-primary-sm:hover {
+  background-color: var(--primary-light);
+}
+
+/* On wider screens: side-by-side */
+@media (min-width: 768px) {
+  .info-block {
+    flex-direction: row;
+  }
+  .info-image,
+  .info-text {
+    flex: 1;
+  }
+  .info-text {
+    text-align: left;
+  }
+}
+
+/* ================= PATIENT STORIES SECTION ================= */
+.stories-section {
+  background-color: var(--light-bg);
+  padding: 40px 20px;
+}
+.stories-section .section-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.stories-section h2 {
+  font-size: 1.6rem;
+  color: var(--dark);
+}
+.stories-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+.story-card {
+  background-color: var(--white);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+.story-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 12px;
+}
+.story-text {
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+.story-author {
+  font-weight: bold;
+  color: var(--primary);
+}
+
+/* On larger: show in row */
+@media (min-width: 768px) {
+  .stories-cards {
+    flex-direction: row;
+  }
+  .story-card {
+    flex: 1;
+  }
+}
+
+/* ================= FAQ SECTION ================= */
+.faq-section {
+  background-color: var(--white);
+  padding: 40px 20px;
+}
+.faq-section .section-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.faq-section h2 {
+  font-size: 1.6rem;
+  color: var(--dark);
+}
+.faq-list {
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+.faq-item {
+  border-bottom: 1px solid #ccc;
+  padding: 12px 0;
+  cursor: pointer;
+}
+.faq-question {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+  color: var(--text-color);
+}
+.faq-toggle {
+  font-size: 1.2rem;
+  color: var(--primary);
+}
+.faq-answer {
+  margin-top: 8px;
+  font-size: 0.95rem;
+  color: var(--text-color);
+}
+
+/* ================= BLOG SECTION ================= */
+.blog-section {
+  background-color: var(--light-bg);
+  padding: 40px 20px;
+}
+.blog-section .section-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.blog-section h2 {
+  font-size: 1.6rem;
+  color: var(--dark);
+}
+.blog-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+.blog-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--white);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+.blog-card img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+.blog-info {
+  padding: 16px;
+}
+.blog-info h4 {
+  margin: 0 0 8px;
+  color: var(--primary);
+}
+.blog-info p {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+}
+.btn-secondary-sm {
+  display: inline-block;
+  background-color: var(--secondary);
+  color: var(--white);
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: background 0.3s;
+}
+.btn-secondary-sm:hover {
+  background-color: var(--primary);
+}
+
+/* ================= FOOTER ================= */
+/* Assume Footer.jsx has its own CSS; ensure it appears at bottom */
