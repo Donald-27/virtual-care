@@ -28,16 +28,17 @@ const App = () => {
           {/* Set the full Home screen as default route */}
           <Route path="/" element={<Home />} />
 
-          {/* Other application routes */}
+          {}
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/services" element={<Services />} />
           <Route path="/technology" element={<Technology />} />
           <Route path="/guide" element={<Guide />} />
-          <Route path="/booking" element={<BookingForm />} />
+          <Route path="/book" element={<BookingForm />} />
+
           <Route path="/patients" element={<Patients />} />
           <Route path="/doctors" element={<Doctors />} />
           <Route path="/login" element={<DoctorLogin />} />
-
+     
           <Route path="/dashboard" element={<DoctorDashboard />} />
           <Route path="/emergency" element={<Emergency />} />
         </Routes>
