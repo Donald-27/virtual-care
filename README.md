@@ -60,6 +60,7 @@ Frontend pages and components:
 - Header has visible emergency button and Doctor Login link
 - Services and Technology sections use modern layout and images
 - Guide section shows how the system works step by step
+- Footer.jsx – Project footer
 
 To run frontend:
 
@@ -69,9 +70,11 @@ To run frontend:
 
 Database
 
-- SQLite used for development
-- app.db file automatically created when running backend
-- Contains tables for all models (patients, doctors, appointments, etc.)
+-SQLite used for development
+-virtualcare.db file created automatically
+-Contains tables for: doctors, patients, appointments, emergencies, symptoms
+-Uses association tables for symptoms in emergencies and appointments
+
 
 Tech Stack Used
 
