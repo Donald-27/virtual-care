@@ -83,3 +83,16 @@
   background-color: #ffdcdc;
   color: #a81818;
 }
+.status-msg {
+  margin-top: 1rem;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.status-msg.success {
+  color: green;
+}
+
+.status-msg.error {
+  color: red;
+}
