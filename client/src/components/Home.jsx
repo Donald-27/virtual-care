@@ -83,12 +83,12 @@ export default function HomePage() {
 
       <footer className="footer-dark">
         <section className="footer-promo">
-          <h3>Meet Rocket Doctor</h3>
+          <h3>Meet Virtual-Care</h3>
           <p>We deliver secure, high-quality virtual care that fits your busy life.</p>
         </section>
         <section className="footer-contact">
           <img src="https://i.pinimg.com/564x/34/56/78/3456789012.jpg" alt="Doctor portrait"/>
-          <p>Dr. Jane Doe, MD — CEO & Co‑Founder</p>
+          <p>Dr. kiprop, MD — CEO & Co‑Founder</p>
         </section>
         <section className="footer-links">
           <a href="/blog">Our Blog</a>
