@@ -1,5 +1,3 @@
-# models.py
-
 from config import db
 
 # Association Tables
@@ -15,7 +13,6 @@ emergency_symptoms = db.Table(
     db.Column('symptom_id', db.Integer, db.ForeignKey('symptoms.id'))
 )
 
-# Doctor
 class Doctor(db.Model):
     __tablename__ = 'doctors'
 
@@ -32,7 +29,6 @@ class Doctor(db.Model):
             "department": self.department
         }
 
-# Patient
 class Patient(db.Model):
     __tablename__ = 'patients'
 
@@ -52,7 +48,6 @@ class Patient(db.Model):
             "identifier": self.identifier
         }
 
-# Symptom
 class Symptom(db.Model):
     __tablename__ = 'symptoms'
 
@@ -65,7 +60,6 @@ class Symptom(db.Model):
             "name": self.name
         }
 
-# Appointment
 class Appointment(db.Model):
     __tablename__ = 'appointments'
 
@@ -93,12 +87,12 @@ class Appointment(db.Model):
             "symptoms": [s.to_dict() for s in self.symptoms]
         }
 
-# Emergency Request
 class EmergencyRequest(db.Model):
     __tablename__ = 'emergencies'
 
     id = db.Column(db.Integer, primary_key=True)
-    patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'))
+    patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'), nullable=True)
+    name = db.Column(db.String) 
     description = db.Column(db.String, nullable=False)
     urgency_level = db.Column(db.String, default='Medium')
 
@@ -108,7 +102,7 @@ class EmergencyRequest(db.Model):
         return {
             "id": self.id,
             "patient_id": self.patient_id,
-            "patient_name": self.patient.name if self.patient else "Anonymous",
+            "patient_name": self.patient.name if self.patient else (self.name or "Anonymous"),  # fallback
             "description": self.description,
             "urgency_level": self.urgency_level,
             "symptoms": [s.to_dict() for s in self.symptoms]

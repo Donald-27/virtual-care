@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../assets/css/BookingForm.css'; // Assuming you're using same styles
+import '../assets/css/BookingForm.css';
 
 export default function Patients() {
   const [identifier, setIdentifier] = useState('');
@@ -14,7 +14,7 @@ export default function Patients() {
     setAppointments([]);
 
     try {
-      // Step 1: Login using identifier
+     
       const loginRes = await fetch('http://localhost:5555/patient-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -30,7 +30,7 @@ export default function Patients() {
       const patientData = await loginRes.json();
       setPatient(patientData);
 
-      // Step 2: Fetch patient appointments
+    
       const apptRes = await fetch(`http://localhost:5555/patients/${patientData.id}/appointments`);
       const apptData = await apptRes.json();
       setAppointments(apptData);

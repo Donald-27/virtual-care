@@ -9,12 +9,12 @@ export default function Header() {
   return (
     <header className="glass-header">
       <div className="nav-container">
-        {/* Logo */}
+        {}
         <div className="logo">
           <Link to="/">🩺 VirtualCare</Link>
         </div>
 
-        {/* Navigation Links */}
+        {}
         <nav className={`nav-links ${menuOpen ? 'open' : ''}`}>
           <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
           <Link to="/services" onClick={() => setMenuOpen(false)}>Services</Link>
@@ -25,7 +25,7 @@ export default function Header() {
           <Link to="/login" onClick={() => setMenuOpen(false)}>Doctor Login</Link>
         </nav>
 
-        {/* Right Side */}
+        {}
         <div className="header-right">
           <button
             className="emergency"
@@ -34,10 +34,10 @@ export default function Header() {
               navigate('/emergency');
             }}
           >
-            🚨 Emergency
+             Emergency
           </button>
 
-          {/* Mobile Menu Icon */}
+          {}
           <div className="menu-icon" onClick={() => setMenuOpen(!menuOpen)}>
             ☰
           </div>

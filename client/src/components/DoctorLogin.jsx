@@ -1,8 +1,7 @@
-// src/components/DoctorLogin.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchDoctorLogin } from '../api/api';
-import '../assets/css/BookingForm.css'; // Reuse the booking form styles
+import '../assets/css/BookingForm.css';
 
 export default function DoctorLogin() {
   const [doctorId, setDoctorId] = useState('');

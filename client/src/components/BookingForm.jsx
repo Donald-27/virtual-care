@@ -33,28 +33,26 @@ export default function BookingForm() {
     }
 
     try {
-      // Create or fetch patient
+     
       const patient = await createPatient({
         name: patientName,
         identifier: identifier,
         age: parseInt(age)
       });
 
-      // Prepare appointment data
+ 
       const apptData = {
         patient_id: patient.id,
         doctor_id: parseInt(selectedDoctor),
         date,
         time,
-        notes: additionalNotes, // Used to pass symptoms
+        notes: additionalNotes,
         status: "Confirmed"
       };
 
-      // Send to backend
       const appt = await createAppointment(apptData);
       setMessage(`Appointment created successfully (ID: ${appt.id})`);
 
-      // Reset form
       setAge('');
       setIdOrBirthCert('');
       setPatientName('');

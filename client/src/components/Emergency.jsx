@@ -25,7 +25,7 @@ export default function Emergency() {
       if (!response.ok) throw new Error('Failed to submit emergency');
 
       const data = await response.json();
-      setMessage(`🚨 Emergency submitted! Reference ID: ${data.id}`);
+      setMessage(` Emergency submitted! Reference ID: ${data.id}`);
       setName('');
       setDescription('');
       setUrgency('High');
@@ -76,7 +76,7 @@ export default function Emergency() {
         <button className="emergency-btn" type="submit">Submit Emergency</button>
 
         <div className="contact-options">
-          <a href="tel:+254712345678" className="contact-btn">Call Ambulance</a>
+          <a href="tel:+254724779523" className="contact-btn">Call Ambulance</a>
           <a href="mailto:help@virtualcare.org?subject=Emergency%20Assistance" className="contact-btn email">
             Email Support
           </a>

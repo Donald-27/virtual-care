@@ -1,5 +1,3 @@
-# app.py
-
 from flask import Flask, request, jsonify
 from flask_restful import Api, Resource
 from flask_cors import CORS
@@ -17,12 +15,10 @@ db.init_app(app)
 api = Api(app)
 CORS(app)
 
-# ----------------------------
 @app.route('/')
 def home():
     return '<h1>✅ VirtualCare Backend is Running</h1>'
 
-# ---------------------------- Doctor Login
 class DoctorLoginResource(Resource):
     def post(self):
         data = request.get_json()
@@ -43,7 +39,6 @@ class DoctorLoginResource(Resource):
 
 api.add_resource(DoctorLoginResource, '/doctor-login')
 
-# ---------------------------- Patient Login
 class PatientLoginResource(Resource):
     def post(self):
         data = request.get_json()
@@ -64,7 +59,6 @@ class PatientLoginResource(Resource):
 
 api.add_resource(PatientLoginResource, '/patient-login')
 
-# ---------------------------- Doctors
 class DoctorsResource(Resource):
     def get(self):
         return [d.to_dict() for d in Doctor.query.all()], 200
@@ -85,7 +79,6 @@ class DoctorAppointmentsResource(Resource):
 
 api.add_resource(DoctorAppointmentsResource, '/doctors/<int:id>/appointments')
 
-# ---------------------------- Patients
 class PatientsResource(Resource):
     def get(self):
         return [p.to_dict() for p in Patient.query.all()], 200
@@ -103,7 +96,6 @@ class PatientsResource(Resource):
 
 api.add_resource(PatientsResource, '/patients')
 
-# ---------------------------- Appointments
 class AppointmentsResource(Resource):
     def get(self):
         return [a.to_dict() for a in Appointment.query.all()], 200
@@ -134,7 +126,7 @@ class AppointmentsResource(Resource):
 api.add_resource(AppointmentsResource, '/appointments', endpoint='appointments_list')
 api.add_resource(AppointmentsResource, '/appointments/<int:id>', endpoint='appointment_detail')
 
-# ---------------------------- Patient Appointments
+
 class PatientAppointmentsResource(Resource):
     def get(self, id):
         patient = Patient.query.get_or_404(id)
@@ -143,7 +135,6 @@ class PatientAppointmentsResource(Resource):
 api.add_resource(PatientAppointmentsResource, '/patients/<int:id>/appointments')
 
 
-# ---------------------------- Emergency Requests
 class EmergenciesResource(Resource):
     def get(self):
         return [e.to_dict() for e in EmergencyRequest.query.all()], 200
@@ -161,14 +152,13 @@ class EmergenciesResource(Resource):
 
 api.add_resource(EmergenciesResource, '/emergencies')
 
-# ---------------------------- Symptom List
 class SymptomListResource(Resource):
     def get(self):
         return [s.to_dict() for s in Symptom.query.all()], 200
 
 api.add_resource(SymptomListResource, '/symptoms')
 
-# ---------------------------- Run
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
