@@ -1,34 +1,41 @@
+// src/components/DoctorLogin.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchDoctorById } from '../api/api';
+import { fetchDoctorLogin } from '../api/api';
+import '../assets/css/BookingForm.css'; // Reuse the booking form styles
+
 export default function DoctorLogin() {
   const [doctorId, setDoctorId] = useState('');
-  const [email, setEmail] = useState(''); 
-  const [password, setPassword] = useState(''); 
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
     try {
-      const doc = await fetchDoctorById(doctorId);
-      if (doc && doc.id) {
-    
-        navigate(`/dashboard/${doctorId}`);
+      const doctor = await fetchDoctorLogin({
+        doctor_id: doctorId,
+        password: password
+      });
+
+      if (doctor?.id) {
+        navigate(`/dashboard/${doctor.id}`);
       } else {
-        setError('Invalid doctor ID');
+        setError('Invalid login credentials');
       }
     } catch (err) {
       console.error(err);
-      setError('Login failed');
+      setError('Invalid login credentials');
     }
   };
 
-
   return (
-    <div className="container">
+    <div className="booking-container">
       <h2>Doctor Login</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="booking-form">
+
         <label>
           Doctor ID:
           <input
@@ -38,28 +45,22 @@ export default function DoctorLogin() {
             required
           />
         </label>
-        
+
         <label>
-          Email:
-          <input
-            type="email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-          />
-        </label>
-        <label>
-          Password:
+          Full Name (Password):
           <input
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
+            placeholder="Enter your full name"
             required
           />
         </label>
-        <button type="submit">Log In</button>
+
+        <button type="submit" className="btn-book">Log In</button>
       </form>
-      {error && <p className="msg err">{error}</p>}
+
+      {error && <p className="alert error">{error}</p>}
     </div>
   );
 }

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import '../assets/css/emergency.css';
 
 export default function Emergency() {
-  const [patientName, setPatientName] = useState('');
+  const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [urgency, setUrgency] = useState('High');
   const [message, setMessage] = useState('');
@@ -10,25 +10,28 @@ export default function Emergency() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
+
     try {
-      const response = await fetch('http://localhost:5000/emergencies', {
+      const response = await fetch('http://localhost:5555/emergencies', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          patient_name: patientName,
+          name,
           description,
           urgency_level: urgency
         })
       });
-      if (!response.ok) throw new Error('Failed to submit emergency request');
+
+      if (!response.ok) throw new Error('Failed to submit emergency');
+
       const data = await response.json();
-      setMessage(`Emergency submitted! Reference ID: ${data.id}`);
-      setPatientName('');
+      setMessage(`🚨 Emergency submitted! Reference ID: ${data.id}`);
+      setName('');
       setDescription('');
       setUrgency('High');
     } catch (err) {
       console.error(err);
-      setMessage(' Error sending emergency request.');
+      setMessage('Error submitting emergency.');
     }
   };
 
@@ -40,11 +43,13 @@ export default function Emergency() {
           Your Name:
           <input
             type="text"
-            value={patientName}
-            onChange={(e) => setPatientName(e.target.value)}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g. Jane Doe"
             required
           />
         </label>
+
         <label>
           Describe the Emergency:
           <textarea
@@ -53,6 +58,7 @@ export default function Emergency() {
             required
           />
         </label>
+
         <label>
           Urgency Level:
           <select
@@ -66,16 +72,22 @@ export default function Emergency() {
             <option>Critical</option>
           </select>
         </label>
-        <button className="emergency-btn" type="submit">Submit Emergency</button>
-        <div className="contact-options">
-  <a href="tel:+254712345678" className="contact-btn">Call Ambulance</a>
-  <a href="mailto:help@virtualcare.org?subject=Emergency%20Assistance&body=Hello%2C%20I%20need%20urgent%20medical%20help." className="contact-btn email">
-     Email Support
-  </a>
-</div>
 
+        <button className="emergency-btn" type="submit">Submit Emergency</button>
+
+        <div className="contact-options">
+          <a href="tel:+254712345678" className="contact-btn">Call Ambulance</a>
+          <a href="mailto:help@virtualcare.org?subject=Emergency%20Assistance" className="contact-btn email">
+            Email Support
+          </a>
+        </div>
       </form>
-      {message && <p className="message">{message}</p>}
+
+      {message && (
+        <p className={`message ${message.includes('submitted') ? 'success' : 'error'}`}>
+          {message}
+        </p>
+      )}
     </div>
   );
 }

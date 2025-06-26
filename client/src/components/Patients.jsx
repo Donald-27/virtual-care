@@ -1,109 +1,98 @@
 import React, { useState } from 'react';
-import { fetchPatientHistory } from '../api/api';
+import '../assets/css/BookingForm.css'; // Assuming you're using same styles
 
 export default function Patients() {
-  const [patientId, setPatientId] = useState('');
-  const [history, setHistory] = useState(null);
+  const [identifier, setIdentifier] = useState('');
+  const [patient, setPatient] = useState(null);
+  const [appointments, setAppointments] = useState([]);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setHistory(null);
+    setPatient(null);
+    setAppointments([]);
+
     try {
-      const data = await fetchPatientHistory(patientId);
-      setHistory(data);
+      // Step 1: Login using identifier
+      const loginRes = await fetch('http://localhost:5555/patient-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier })
+      });
+
+      if (!loginRes.ok) {
+        const errData = await loginRes.json();
+        setError(errData.error || 'Login failed');
+        return;
+      }
+
+      const patientData = await loginRes.json();
+      setPatient(patientData);
+
+      // Step 2: Fetch patient appointments
+      const apptRes = await fetch(`http://localhost:5555/patients/${patientData.id}/appointments`);
+      const apptData = await apptRes.json();
+      setAppointments(apptData);
     } catch (err) {
       console.error(err);
-      setError('Could not fetch history.');
+      setError('Network error or server unavailable');
     }
   };
 
   return (
-    <div className="container">
-      <h2>Patient Medical History</h2>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Enter Your Patient ID:
+    <div className="booking-container">
+      <h2>Patient Appointment History</h2>
+      <form onSubmit={handleSubmit} className="booking-form">
+        <div className="form-group">
+          <label>Enter your ID, Birth Certificate number, or Full Name:</label>
           <input
-            type="number"
-            value={patientId}
-            onChange={e => setPatientId(e.target.value)}
+            type="text"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+            placeholder="E.g. 12345678 or Baby John"
             required
           />
-        </label>
-        <button type="submit">View History</button>
+        </div>
+        <button type="submit" className="btn-book">View Appointments</button>
       </form>
-      {error && <p className="msg err">{error}</p>}
-      {history && (
-        <div style={{ marginTop: '1rem' }}>
-          <section>
-            <h3>Appointments</h3>
-            {history.appointments?.length ? (
-              <table>
-                <thead>
-                  <tr>
-                    <th>ID</th><th>Doctor</th><th>Date</th><th>Time</th><th>Status</th>
+
+      {error && <div className="alert error">{error}</div>}
+
+      {patient && (
+        <div style={{ marginTop: '2rem' }}>
+          <h3>Hello, {patient.name}</h3>
+          <p><strong>Age:</strong> {patient.age || 'N/A'} | <strong>ID:</strong> {patient.identifier || patient.id}</p>
+
+          <h3>Your Appointments</h3>
+          {appointments.length ? (
+            <table style={{ width: '100%', marginTop: '1rem' }}>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Doctor</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Status</th>
+                  <th>Last Updated</th>
+                </tr>
+              </thead>
+              <tbody>
+                {appointments.map((a) => (
+                  <tr key={a.id}>
+                    <td>{a.id}</td>
+                    <td>{a.doctor_name}</td>
+                    <td>{a.date}</td>
+                    <td>{a.time}</td>
+                    <td>{a.status}</td>
+                    <td>{a.last_updated ? new Date(a.last_updated).toLocaleString() : '—'}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {history.appointments.map(a => (
-                    <tr key={a.id}>
-                      <td>{a.id}</td>
-                      <td>{a.doctor?.name || a.doctor_id}</td>
-                      <td>{a.date}</td>
-                      <td>{a.time}</td>
-                      <td>{a.status}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : <p>No appointments found.</p>}
-          </section>
-          <section>
-            <h3>Emergencies</h3>
-            {history.emergencies?.length ? (
-              <table>
-                <thead>
-                  <tr>
-                    <th>ID</th><th>Description</th><th>Urgency</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {history.emergencies.map(e => (
-                    <tr key={e.id}>
-                      <td>{e.id}</td>
-                      <td>{e.description}</td>
-                      <td>{e.urgency_level}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : <p>No emergency records found.</p>}
-          </section>
-          <section>
-            <h3>Doctor Notes</h3>
-            {history.notes?.length ? (
-              <table>
-                <thead>
-                  <tr>
-                    <th>ID</th><th>Appointment ID</th><th>Content</th><th>Signed By</th><th>Signed At</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {history.notes.map(n => (
-                    <tr key={n.id}>
-                      <td>{n.id}</td>
-                      <td>{n.appointment_id}</td>
-                      <td>{n.content}</td>
-                      <td>{n.signed_by}</td>
-                      <td>{n.signed_at}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : <p>No notes found.</p>}
-          </section>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>No appointments found.</p>
+          )}
         </div>
       )}
     </div>

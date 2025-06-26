@@ -1,8 +1,8 @@
-from sqlalchemy.ext.associationproxy import association_proxy
+# models.py
 
 from config import db
 
-# Association tables for many-to-many symptom tags
+# Association Tables
 appointment_symptoms = db.Table(
     'appointment_symptoms',
     db.Column('appointment_id', db.Integer, db.ForeignKey('appointments.id')),
@@ -15,18 +15,15 @@ emergency_symptoms = db.Table(
     db.Column('symptom_id', db.Integer, db.ForeignKey('symptoms.id'))
 )
 
-# Models go here!
-
+# Doctor
 class Doctor(db.Model):
     __tablename__ = 'doctors'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    department = db.Column(db.String)  
+    name = db.Column(db.String, nullable=False)
+    department = db.Column(db.String, nullable=False)
 
-    appointments = db.relationship('Appointment', backref='doctor')
-    availabilities = db.relationship('DoctorAvailability', backref='doctor')
-    notes = db.relationship('DoctorNote', backref='doctor')
+    appointments = db.relationship('Appointment', backref='doctor', lazy=True)
 
     def to_dict(self):
         return {
@@ -35,32 +32,32 @@ class Doctor(db.Model):
             "department": self.department
         }
 
-class DoctorAvailability(db.Model):
-    __tablename__ = 'availabilities'
-
-    id = db.Column(db.Integer, primary_key=True)
-    doctor_id = db.Column(db.Integer, db.ForeignKey('doctors.id'))
-    day_of_week = db.Column(db.String) 
-    start_time = db.Column(db.String)  
-    end_time = db.Column(db.String)
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "doctor_id": self.doctor_id,
-            "day_of_week": self.day_of_week,
-            "start_time": self.start_time,
-            "end_time": self.end_time
-        }
-
+# Patient
 class Patient(db.Model):
     __tablename__ = 'patients'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
+    name = db.Column(db.String, nullable=False)
+    age = db.Column(db.Integer)
+    identifier = db.Column(db.String)
 
-    appointments = db.relationship('Appointment', backref='patient')
-    emergencies = db.relationship('EmergencyRequest', backref='patient')
+    appointments = db.relationship('Appointment', backref='patient', lazy=True)
+    emergencies = db.relationship('EmergencyRequest', backref='patient', lazy=True)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "age": self.age,
+            "identifier": self.identifier
+        }
+
+# Symptom
+class Symptom(db.Model):
+    __tablename__ = 'symptoms'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
 
     def to_dict(self):
         return {
@@ -68,39 +65,42 @@ class Patient(db.Model):
             "name": self.name
         }
 
+# Appointment
 class Appointment(db.Model):
     __tablename__ = 'appointments'
 
     id = db.Column(db.Integer, primary_key=True)
     doctor_id = db.Column(db.Integer, db.ForeignKey('doctors.id'))
     patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'))
-    date = db.Column(db.String)
-    time = db.Column(db.String)
-    status = db.Column(db.String, default="Pending")
+    date = db.Column(db.String, nullable=False)
+    time = db.Column(db.String, nullable=False)
+    status = db.Column(db.String, default='Pending')
+    last_updated = db.Column(db.String)
 
     symptoms = db.relationship('Symptom', secondary=appointment_symptoms, backref='appointments')
-
-    note = db.relationship('DoctorNote', backref='appointment', uselist=False)
 
     def to_dict(self):
         return {
             "id": self.id,
             "doctor_id": self.doctor_id,
+            "doctor_name": self.doctor.name if self.doctor else None,
+            "doctor_department": self.doctor.department if self.doctor else None,
             "patient_id": self.patient_id,
             "date": self.date,
             "time": self.time,
             "status": self.status,
-            "symptoms": [s.to_dict() for s in self.symptoms],
-            "note": self.note.to_dict() if self.note else None
+            "last_updated": self.last_updated,
+            "symptoms": [s.to_dict() for s in self.symptoms]
         }
 
+# Emergency Request
 class EmergencyRequest(db.Model):
     __tablename__ = 'emergencies'
 
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'))
-    description = db.Column(db.String)
-    urgency_level = db.Column(db.String, default="Medium") 
+    description = db.Column(db.String, nullable=False)
+    urgency_level = db.Column(db.String, default='Medium')
 
     symptoms = db.relationship('Symptom', secondary=emergency_symptoms, backref='emergencies')
 
@@ -108,39 +108,8 @@ class EmergencyRequest(db.Model):
         return {
             "id": self.id,
             "patient_id": self.patient_id,
+            "patient_name": self.patient.name if self.patient else "Anonymous",
             "description": self.description,
             "urgency_level": self.urgency_level,
             "symptoms": [s.to_dict() for s in self.symptoms]
-        }
-
-class Symptom(db.Model):
-    __tablename__ = 'symptoms'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "name": self.name
-        }
-
-class DoctorNote(db.Model):
-    __tablename__ = 'doctor_notes'
-
-    id = db.Column(db.Integer, primary_key=True)
-    appointment_id = db.Column(db.Integer, db.ForeignKey('appointments.id'))
-    doctor_id = db.Column(db.Integer, db.ForeignKey('doctors.id'))
-    content = db.Column(db.String)
-    signed_by = db.Column(db.String, nullable=True)
-    signed_at = db.Column(db.String, nullable=True)
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "appointment_id": self.appointment_id,
-            "doctor_id": self.doctor_id,
-            "content": self.content,
-            "signed_by": self.signed_by,
-            "signed_at": self.signed_at
         }

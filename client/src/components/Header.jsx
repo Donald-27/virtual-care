@@ -9,22 +9,35 @@ export default function Header() {
   return (
     <header className="glass-header">
       <div className="nav-container">
+        {/* Logo */}
         <div className="logo">
           <Link to="/">🩺 VirtualCare</Link>
         </div>
 
+        {/* Navigation Links */}
         <nav className={`nav-links ${menuOpen ? 'open' : ''}`}>
-          <Link to="/">Home</Link>
-          <Link to="/services">Services</Link>
-          <Link to="/technology">Technology</Link>
-          <Link to="/guide">Guide</Link>
-          <Link to="/book">Book</Link>
-          <Link to="/patients">My History</Link>
-          <Link to="/login">Doctor Login</Link>
+          <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
+          <Link to="/services" onClick={() => setMenuOpen(false)}>Services</Link>
+          <Link to="/technology" onClick={() => setMenuOpen(false)}>Technology</Link>
+          <Link to="/guide" onClick={() => setMenuOpen(false)}>Guide</Link>
+          <Link to="/book" onClick={() => setMenuOpen(false)}>Book</Link>
+          <Link to="/patients" onClick={() => setMenuOpen(false)}>My History</Link>
+          <Link to="/login" onClick={() => setMenuOpen(false)}>Doctor Login</Link>
         </nav>
 
+        {/* Right Side */}
         <div className="header-right">
-          <button className="emergency" onClick={() => navigate('/emergency')}>🚨 Emergency</button>
+          <button
+            className="emergency"
+            onClick={() => {
+              setMenuOpen(false);
+              navigate('/emergency');
+            }}
+          >
+            🚨 Emergency
+          </button>
+
+          {/* Mobile Menu Icon */}
           <div className="menu-icon" onClick={() => setMenuOpen(!menuOpen)}>
             ☰
           </div>

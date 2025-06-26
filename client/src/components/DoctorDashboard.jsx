@@ -1,77 +1,72 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { fetchDoctorAppointments, fetchDoctorEmergencies } from '../api/api';
+import '../assets/css/BookingForm.css';
 
-export default function DoctorDashboard() {
-  const { doctorId } = useParams();
-  const [appointments, setAppointments] = useState([]);
-  const [emergencies, setEmergencies] = useState([]);
+function DoctorDashboard() {
+  const { id: doctorId } = useParams();
+  const [appts, setAppts] = useState([]);
+  const [editing, setEditing] = useState({});
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const appts = await fetchDoctorAppointments(doctorId);
-        setAppointments(appts || []);
-        const ems = await fetchDoctorEmergencies(doctorId);
-        setEmergencies(ems || []);
-      } catch (err) {
-        console.error(err);
-        setError('Could not load dashboard data');
-      }
-    };
-    load();
+    fetch(`/doctors/${doctorId}/appointments`)
+      .then(r => r.json())
+      .then(setAppts).catch(() => setError('Could not load.'));
   }, [doctorId]);
+
+  const saveChange = (apptId) => {
+    const { date, time } = editing[apptId] || {};
+    fetch(`/appointments/${apptId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date, time })
+    })
+      .then((r) => r.json())
+      .then((updated) => {
+        setAppts(appts.map(a => a.id === apptId ? updated : a));
+        setEditing(prev => { const nxt = {...prev}; delete nxt[apptId]; return nxt; });
+      })
+      .catch(() => setError('Update failed.'));
+  };
+
   return (
-    <div className="container">
-      <h2>Doctor Dashboard (ID: {doctorId})</h2>
-      {error && <p className="msg err">{error}</p>}
-      <section>
-        <h3>Appointments</h3>
-        {appointments.length ? (
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th><th>Patient</th><th>Date</th><th>Time</th><th>Status</th><th>Note</th>
-              </tr>
-            </thead>
-            <tbody>
-              {appointments.map(a => (
-                <tr key={a.id}>
-                  <td>{a.id}</td>
-                  <td>{a.patient?.name || a.patient_id}</td>
-                  <td>{a.date}</td>
-                  <td>{a.time}</td>
-                  <td>{a.status}</td>
-                  <td>{a.note ? a.note.content : '-'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : <p>No appointments.</p>}
-      </section>
-      <section>
-        <h3>Emergency Requests</h3>
-        {emergencies.length ? (
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th><th>Patient</th><th>Description</th><th>Urgency</th>
-              </tr>
-            </thead>
-            <tbody>
-              {emergencies.map(e => (
-                <tr key={e.id}>
-                  <td>{e.id}</td>
-                  <td>{e.patient?.name || e.patient_id}</td>
-                  <td>{e.description}</td>
-                  <td>{e.urgency_level}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : <p>No emergencies.</p>}
-      </section>
+    <div className="booking-container">
+      <h2>Dr. {doctorId} Dashboard</h2>
+      {error && <div className="alert error">{error}</div>}
+      {appts.map(appt => (
+        <div key={appt.id} className="form-group">
+          <strong>Appointment #{appt.id}</strong><br/>
+          Patient: {appt.patient_id} • Original: {appt.date} {appt.time}<br/>
+          {appt.last_updated && <em>Updated: {appt.last_updated}</em>}<br/>
+
+          <label>Change date:</label>
+          <input
+            type="date"
+            defaultValue={appt.date}
+            onChange={e =>
+              setEditing(prev => ({ ...prev, [appt.id]: { 
+                date: e.target.value, time: prev[appt.id]?.time || appt.time} }))
+            }
+          />
+
+          <label>Change time:</label>
+          <input
+            type="time"
+            defaultValue={appt.time}
+            onChange={e =>
+              setEditing(prev => ({ ...prev, [appt.id]: { 
+                date: prev[appt.id]?.date || appt.date, time: e.target.value} }))
+            }
+          />
+
+          <button className="btn-book" onClick={() => saveChange(appt.id)}>
+            Save
+          </button>
+          <hr />
+        </div>
+      ))}
     </div>
   );
 }
+
+export default DoctorDashboard;

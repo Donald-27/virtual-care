@@ -5,7 +5,10 @@ import {
   createAppointment
 } from '../api/api';
 import '../assets/css/BookingForm.css';
+
 export default function BookingForm() {
+  const [age, setAge] = useState('');
+  const [idOrBirthCert, setIdOrBirthCert] = useState('');
   const [patientName, setPatientName] = useState('');
   const [doctors, setDoctors] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState('');
@@ -13,24 +16,47 @@ export default function BookingForm() {
   const [time, setTime] = useState('');
   const [additionalNotes, setAdditionalNotes] = useState('');
   const [message, setMessage] = useState('');
+
   useEffect(() => {
     fetchDoctors().then(data => setDoctors(data || []));
   }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
+
+    const identifier = age < 1 ? patientName : idOrBirthCert;
+
+    if (!identifier) {
+      setMessage('Please provide a valid ID, Birth Certificate number or Name.');
+      return;
+    }
+
     try {
-      const patient = await createPatient({ name: patientName });
+      // Create or fetch patient
+      const patient = await createPatient({
+        name: patientName,
+        identifier: identifier,
+        age: parseInt(age)
+      });
+
+      // Prepare appointment data
       const apptData = {
         patient_id: patient.id,
         doctor_id: parseInt(selectedDoctor),
         date,
         time,
-        notes: additionalNotes
+        notes: additionalNotes, // Used to pass symptoms
+        status: "Confirmed"
       };
 
+      // Send to backend
       const appt = await createAppointment(apptData);
       setMessage(`Appointment created successfully (ID: ${appt.id})`);
+
+      // Reset form
+      setAge('');
+      setIdOrBirthCert('');
       setPatientName('');
       setSelectedDoctor('');
       setDate('');
@@ -38,24 +64,79 @@ export default function BookingForm() {
       setAdditionalNotes('');
     } catch (err) {
       console.error(err);
-      setMessage(' Failed to book appointment.');
+      setMessage('Failed to book appointment.');
     }
   };
+
   return (
     <div className="booking-container">
       <h2 className="booking-title">Book an Appointment</h2>
 
       <form onSubmit={handleSubmit} className="booking-form">
         <label>
-          Your Name:
+          Age:
           <input
-            type="text"
-            value={patientName}
-            onChange={e => setPatientName(e.target.value)}
-            placeholder="Enter your full name"
+            type="number"
+            value={age}
+            min="0"
+            onChange={e => setAge(e.target.value)}
+            placeholder="Enter age"
             required
           />
         </label>
+
+        {age !== '' && age >= 18 && (
+          <label>
+            National ID Number:
+            <input
+              type="text"
+              value={idOrBirthCert}
+              onChange={e => setIdOrBirthCert(e.target.value)}
+              placeholder="Enter ID number"
+              required
+            />
+          </label>
+        )}
+
+        {age !== '' && age < 18 && age >= 1 && (
+          <label>
+            Birth Certificate Number:
+            <input
+              type="text"
+              value={idOrBirthCert}
+              onChange={e => setIdOrBirthCert(e.target.value)}
+              placeholder="Enter birth certificate number"
+              required
+            />
+          </label>
+        )}
+
+        {age !== '' && age < 1 && (
+          <label>
+            Infant's Full Name:
+            <input
+              type="text"
+              value={patientName}
+              onChange={e => setPatientName(e.target.value)}
+              placeholder="Enter infant's name"
+              required
+            />
+          </label>
+        )}
+
+        {!(age !== '' && age < 1) && (
+          <label>
+            Your Name:
+            <input
+              type="text"
+              value={patientName}
+              onChange={e => setPatientName(e.target.value)}
+              placeholder="Enter your full name"
+              required
+            />
+          </label>
+        )}
+
         <label>
           Select Doctor:
           <select
@@ -72,7 +153,6 @@ export default function BookingForm() {
           </select>
         </label>
 
-        
         <label>
           Appointment Date:
           <input
@@ -96,7 +176,7 @@ export default function BookingForm() {
         <label>
           Describe Your Symptoms:
           <textarea
-            placeholder="Type your symptoms here..."
+            placeholder="Enter symptoms (e.g., Fever, Cough)"
             value={additionalNotes}
             onChange={e => setAdditionalNotes(e.target.value)}
             rows="4"
@@ -108,7 +188,7 @@ export default function BookingForm() {
       </form>
 
       {message && (
-        <p className={`status-msg ${message.startsWith('Oops!') ? 'error' : 'success'}`}>
+        <p className={`status-msg ${message.startsWith('Failed') ? 'error' : 'success'}`}>
           {message}
         </p>
       )}
