@@ -11,8 +11,6 @@ symptom_names = ["Fever", "Headache", "Cough", "Fatigue", "Nausea"]
 
 with app.app_context():
     print("Seeding database...")
-
-    # Clear tables (order matters due to FK constraints)
     db.session.query(Appointment).delete()
     db.session.query(EmergencyRequest).delete()
     db.session.query(Patient).delete()

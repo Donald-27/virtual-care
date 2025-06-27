@@ -17,7 +17,7 @@ CORS(app)
 
 @app.route('/')
 def home():
-    return '<h1>✅ VirtualCare Backend is Running</h1>'
+    return '<h1>VirtualCare Backend is Running</h1>'
 
 class DoctorLoginResource(Resource):
     def post(self):
