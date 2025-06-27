@@ -14,7 +14,7 @@ export default function HomePage() {
           </div>
         </div>
         <div className="hero-img">
-          <img src="https://i.pinimg.com/736x/12/34/56/1234567890ab.jpg" alt="Doctor on video call"/>
+          <img src="https://i.pinimg.com/736x/63/ed/ec/63edecef8836c3f2b2256317b5949537.jpg" alt="Doctor on video call"/>
         </div>
       </header>
 
@@ -22,7 +22,7 @@ export default function HomePage() {
         <h2>Our Services</h2>
         <div className="summary-grid">
           <div className="summary-card">
-            <img src="https://i.pinimg.com/736x/ab/cd/ef/abcdef123.jpg" alt="Primary & Urgent Care"/>
+            <img src="https://i.pinimg.com/736x/74/97/ec/7497ec4eeba78d6faa110aeae104fac1.jpg" alt="Primary & Urgent Care"/>
             <div className="summary-info">
               <h3>Primary & Urgent Care</h3>
               <p>Routine checkups, sick notes, chronic treatment, and fast access to doctors.</p>
@@ -45,15 +45,15 @@ export default function HomePage() {
         <h2>How It Works</h2>
         <div className="steps-row">
           <div className="step-item">
-            <img src="https://i.pinimg.com/564x/01/23/45/0123456789.jpg" alt="Step1"/>
+            <img src="https://i.pinimg.com/736x/bd/53/8f/bd538f7b36297b4aa9416bf4021fd7ec.jpg" alt="Step1"/>
             <h4>Select a Doctor</h4>
           </div>
           <div className="step-item">
-            <img src="https://i.pinimg.com/564x/23/45/67/2345678901.jpg" alt="Step2"/>
+            <img src="https://i.pinimg.com/736x/8f/df/fe/8fdffe029d9a697aa1eaa08bf5ec53c2.jpg" alt="Step2"/>
             <h4>Pick Date & Time</h4>
           </div>
           <div className="step-item">
-            <img src="https://i.pinimg.com/564x/45/67/89/4567890123.jpg" alt="Step3"/>
+            <img src="https://i.pinimg.com/736x/3d/82/14/3d8214217a24fb1ba8d43cfcf53273bf.jpg" alt="Step3"/>
             <h4>Get Seen or Emergency Help</h4>
           </div>
         </div>
@@ -64,11 +64,11 @@ export default function HomePage() {
           <h3>Smart Patient Matching</h3>
           <p>Our system pairs you with top-rated doctors based on specialty and availability.</p>
         </div>
-        <img src="https://i.pinimg.com/564x/67/89/01/6789012345.jpg" alt="Smart Matching"/>
+        <img src="https://i.pinimg.com/736x/fa/db/eb/fadbeb174afe2cfd570f1a57efff011b.jpg" alt="Smart Matching"/>
       </section>
 
       <section className="feature-block white">
-        <img src="https://i.pinimg.com/564x/89/01/23/8901234567.jpg" alt="Virtual Doctor"/>
+        <img src="https://i.pinimg.com/736x/00/92/5f/00925fc78dcb029dcf0444eef59f2999.jpg" alt="Virtual Doctor"/>
         <div className="feature-text">
           <h3>Virtual Consultations</h3>
           <p>Talk to licensed doctors from home via secure video or chat sessions.</p>

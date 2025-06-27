@@ -1,4 +1,5 @@
 .home-page { font-family: sans-serif; color: #333; }
+
 .hero {
   display: flex; align-items: center;
   background: #fff; padding: 60px 20px;
@@ -21,10 +22,11 @@
   text-decoration: none;
 }
 .hero-img img {
-  width: 400px; border-radius: 8px;
+  width: 100%; max-width: 400px;
+  height: auto; border-radius: 8px;
+  object-fit: contain;
 }
 
-/* Services summary */
 .summary-services {
   padding: 60px 20px; background: #f8fbff;
 }
@@ -39,7 +41,11 @@
   flex: 1; min-width: 280px;
 }
 .summary-card img {
-  width: 100%; border-radius: 8px;
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
 }
 .summary-detail ul {
   list-style: none; padding: 0;
@@ -54,7 +60,6 @@
   text-decoration: none;
 }
 
-/* How it works step section */
 .how-it-works {
   padding: 60px 20px; background: white;
 }
@@ -70,13 +75,16 @@
   align-items: center; max-width: 200px;
 }
 .step-item img {
-  width: 120px; margin-bottom: 12px;
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 12px;
 }
 .step-item h4 {
   text-align: center; font-size: 1rem; margin: 0;
 }
 
-/* Feature sections */
 .feature-block {
   display: flex; align-items: center;
   padding: 60px 20px; gap: 20px;
@@ -95,10 +103,12 @@
 }
 .feature-text p { font-size: 1rem; color: #555; }
 .feature-block img {
-  width: 300px; border-radius: 8px;
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  border-radius: 8px;
+  object-fit: contain;
 }
-
-/* Guide block */
 .blue-solid.light {
   background: #f0f8ff; text-align: center;
   padding: 40px 20px;
@@ -110,7 +120,6 @@
   text-decoration: none;
 }
 
-/* Footer */
 .footer-dark {
   background: #001f3f; color: white;
   padding: 60px 20px;
@@ -123,8 +132,12 @@
 }
 .footer-promo p { font-size: 1rem; }
 .footer-contact img {
-  width: 80px; border-radius: 50%;
+  width: 100%;
+  max-width: 80px;
+  height: auto;
+  border-radius: 50%;
   margin-bottom: 8px;
+  object-fit: cover;
 }
 .footer-links a {
   display: block; color: #bbb;
@@ -134,7 +147,6 @@
   text-decoration: underline;
 }
 
-/* Responsive */
 @media (max-width: 900px) {
   .hero { flex-direction: column; text-align: center; }
   .hero-img img { width: 100%; margin-top: 24px; }
@@ -145,8 +157,9 @@
   transform: translateY(-4px);
 }
 .how-icon img {
-  width: 60px;
-  height: 60px;
+  width: 100%;
+  max-width: 60px;
+  height: auto;
   object-fit: cover;
   margin-bottom: 12px;
 }
@@ -172,7 +185,6 @@
   background-color: var(--primary-light);
 }
 
-/* On larger screens, show in row */
 @media (min-width: 768px) {
   .how-steps {
     flex-direction: row;
@@ -185,7 +197,6 @@
   }
 }
 
-/* ================= GUIDE SECTION ================= */
 .guide-section {
   background-color: var(--secondary);
   padding: 40px 20px;
@@ -223,8 +234,6 @@
   background-color: var(--primary-light);
   color: var(--white);
 }
-
-/* ================= INFO BLOCK SECTION ================= */
 .info-block-section {
   background-color: var(--white);
   padding: 40px 20px;
@@ -239,6 +248,7 @@
 }
 .info-image img {
   width: 100%;
+  height: auto;
   border-radius: var(--radius);
   object-fit: cover;
 }
@@ -267,7 +277,6 @@
   background-color: var(--primary-light);
 }
 
-/* On wider screens: side-by-side */
 @media (min-width: 768px) {
   .info-block {
     flex-direction: row;
@@ -280,8 +289,6 @@
     text-align: left;
   }
 }
-
-/* ================= PATIENT STORIES SECTION ================= */
 .stories-section {
   background-color: var(--light-bg);
   padding: 40px 20px;
@@ -312,8 +319,9 @@
   box-shadow: 0 3px 8px rgba(0,0,0,0.1);
 }
 .story-avatar {
-  width: 80px;
-  height: 80px;
+  width: 100%;
+  max-width: 80px;
+  height: auto;
   border-radius: 50%;
   object-fit: cover;
   margin-bottom: 12px;
@@ -327,7 +335,6 @@
   color: var(--primary);
 }
 
-/* On larger: show in row */
 @media (min-width: 768px) {
   .stories-cards {
     flex-direction: row;
@@ -337,7 +344,6 @@
   }
 }
 
-/* ================= FAQ SECTION ================= */
 .faq-section {
   background-color: var(--white);
   padding: 40px 20px;
@@ -376,7 +382,6 @@
   color: var(--text-color);
 }
 
-/* ================= BLOG SECTION ================= */
 .blog-section {
   background-color: var(--light-bg);
   padding: 40px 20px;
@@ -433,6 +438,3 @@
 .btn-secondary-sm:hover {
   background-color: var(--primary);
 }
-
-/* ================= FOOTER ================= */
-/* Assume Footer.jsx has its own CSS; ensure it appears at bottom */
