@@ -1,5 +1,3 @@
-# seed.py
-
 from random import choice
 from app import app, db
 from faker import Faker
@@ -21,6 +19,7 @@ with app.app_context():
     symptoms = [Symptom(name=name) for name in symptom_names]
     db.session.add_all(symptoms)
 
+
     # Create doctors
     doctors = []
     for _ in range(5):
@@ -30,6 +29,7 @@ with app.app_context():
         )
         doctors.append(doc)
     db.session.add_all(doctors)
+
 
     # Create patients
     patients = []

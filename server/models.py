@@ -21,6 +21,8 @@ class Doctor(db.Model):
     department = db.Column(db.String, nullable=False)
 
     appointments = db.relationship('Appointment', backref='doctor', lazy=True)
+    emergencies = db.relationship('EmergencyRequest', backref='doctor', lazy=True)
+    doctor_notes = db.relationship('DoctorNote', backref='doctor', lazy=True)
 
     def to_dict(self):
         return {
@@ -39,6 +41,7 @@ class Patient(db.Model):
 
     appointments = db.relationship('Appointment', backref='patient', lazy=True)
     emergencies = db.relationship('EmergencyRequest', backref='patient', lazy=True)
+    doctor_notes = db.relationship('DoctorNote', backref='patient', lazy=True)
 
     def to_dict(self):
         return {
@@ -80,6 +83,7 @@ class Appointment(db.Model):
             "doctor_name": self.doctor.name if self.doctor else None,
             "doctor_department": self.doctor.department if self.doctor else None,
             "patient_id": self.patient_id,
+            "patient_name": self.patient.name if self.patient else None,
             "date": self.date,
             "time": self.time,
             "status": self.status,
@@ -92,7 +96,8 @@ class EmergencyRequest(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'), nullable=True)
-    name = db.Column(db.String) 
+    doctor_id = db.Column(db.Integer, db.ForeignKey('doctors.id'), nullable=True)
+    name = db.Column(db.String)
     description = db.Column(db.String, nullable=False)
     urgency_level = db.Column(db.String, default='Medium')
 
@@ -102,8 +107,32 @@ class EmergencyRequest(db.Model):
         return {
             "id": self.id,
             "patient_id": self.patient_id,
-            "patient_name": self.patient.name if self.patient else (self.name or "Anonymous"),  # fallback
+            "patient_name": self.patient.name if self.patient else (self.name or "Anonymous"),
+            "doctor_id": self.doctor_id,
+            "doctor_name": self.doctor.name if self.doctor else None,
             "description": self.description,
             "urgency_level": self.urgency_level,
             "symptoms": [s.to_dict() for s in self.symptoms]
+        }
+
+class DoctorNote(db.Model):
+    __tablename__ = 'doctor_notes'
+
+    id = db.Column(db.Integer, primary_key=True)
+    doctor_id = db.Column(db.Integer, db.ForeignKey('doctors.id'), nullable=False)
+    patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'), nullable=False)
+    leave_duration = db.Column(db.String, nullable=True)
+    recommendation = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.String)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "doctor_id": self.doctor_id,
+            "doctor_name": self.doctor.name if self.doctor else None,
+            "patient_id": self.patient_id,
+            "patient_name": self.patient.name if self.patient else None,
+            "leave_duration": self.leave_duration,
+            "recommendation": self.recommendation,
+            "created_at": self.created_at
         }
