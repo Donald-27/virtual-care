@@ -1,65 +1,75 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
 import { fetchDoctorLogin } from '../api/api';
 import '../assets/css/BookingForm.css';
 
 export default function DoctorLogin() {
-  const [doctorId, setDoctorId] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-
-    try {
-      const doctor = await fetchDoctorLogin({
-        doctor_id: doctorId,
-        password: password
-      });
-
-      if (doctor?.id) {
-        navigate(`/dashboard/${doctor.id}`);
-      } else {
-        setError('Invalid login credentials');
+  const formik = useFormik({
+    initialValues: {
+      doctor_id: '',
+      password: '',
+    },
+    validationSchema: Yup.object({
+      doctor_id: Yup.number().required('Doctor ID is required'),
+      password: Yup.string().required('Password is required'),
+    }),
+    onSubmit: async (values, { setSubmitting, setErrors }) => {
+      try {
+        const doctor = await fetchDoctorLogin(values);
+        if (doctor?.id) {
+          navigate(`/dashboard/${doctor.id}`);
+        } else {
+          setErrors({ password: 'Invalid login credentials' });
+        }
+      } catch (err) {
+        setErrors({ password: 'Invalid login credentials' });
+      } finally {
+        setSubmitting(false);
       }
-    } catch (err) {
-      console.error(err);
-      setError('Invalid login credentials');
-    }
-  };
+    },
+  });
 
   return (
     <div className="booking-container">
       <h2>Doctor Login</h2>
-      <form onSubmit={handleSubmit} className="booking-form">
+      <form onSubmit={formik.handleSubmit} className="booking-form">
 
         <label>
           Doctor ID:
           <input
             type="number"
-            value={doctorId}
-            onChange={e => setDoctorId(e.target.value)}
-            required
+            name="doctor_id"
+            value={formik.values.doctor_id}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
           />
+          {formik.touched.doctor_id && formik.errors.doctor_id && (
+            <div className="alert error">{formik.errors.doctor_id}</div>
+          )}
         </label>
 
         <label>
           Full Name (Password):
           <input
             type="password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            placeholder="Enter your full name"
-            required
+            name="password"
+            value={formik.values.password}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
           />
+          {formik.touched.password && formik.errors.password && (
+            <div className="alert error">{formik.errors.password}</div>
+          )}
         </label>
 
-        <button type="submit" className="btn-book">Log In</button>
+        <button type="submit" className="btn-book" disabled={formik.isSubmitting}>
+          Log In
+        </button>
       </form>
-
-      {error && <p className="alert error">{error}</p>}
     </div>
   );
 }

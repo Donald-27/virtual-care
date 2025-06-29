@@ -76,6 +76,8 @@ class Appointment(db.Model):
 
     symptoms = db.relationship('Symptom', secondary=appointment_symptoms, backref='appointments')
 
+    notes = db.relationship('DoctorNote', backref='appointment', lazy=True)
+
     def to_dict(self):
         return {
             "id": self.id,
@@ -121,7 +123,11 @@ class DoctorNote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     doctor_id = db.Column(db.Integer, db.ForeignKey('doctors.id'), nullable=False)
     patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'), nullable=False)
-    leave_duration = db.Column(db.String, nullable=True)
+    appointment_id = db.Column(db.Integer, db.ForeignKey('appointments.id'), nullable=True)
+
+    leave_days = db.Column(db.Integer, nullable=True)
+    diagnosis = db.Column(db.String, nullable=True)
+    prescription = db.Column(db.Text, nullable=True)
     recommendation = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.String)
 
@@ -132,7 +138,10 @@ class DoctorNote(db.Model):
             "doctor_name": self.doctor.name if self.doctor else None,
             "patient_id": self.patient_id,
             "patient_name": self.patient.name if self.patient else None,
-            "leave_duration": self.leave_duration,
+            "appointment_id": self.appointment_id,
+            "leave_days": self.leave_days,
+            "diagnosis": self.diagnosis,
+            "prescription": self.prescription,
             "recommendation": self.recommendation,
             "created_at": self.created_at
         }

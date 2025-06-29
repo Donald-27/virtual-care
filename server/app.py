@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request
 from flask_restful import Api, Resource
 from flask_cors import CORS
 from sqlalchemy import or_
@@ -29,23 +29,16 @@ class DoctorLoginResource(Resource):
         doctor = Doctor.query.filter_by(id=doctor_id).first()
         if not doctor:
             return {"error": "Invalid ID"}, 401
-
-        normalized_input = password.replace(" ", "").lower()
-        normalized_expected = doctor.name.replace(" ", "").lower()
-
-        if normalized_input != normalized_expected:
+        if password.replace(" ", "").lower() != doctor.name.replace(" ", "").lower():
             return {"error": "Invalid login credentials"}, 401
-
         return doctor.to_dict(), 200
 
 api.add_resource(DoctorLoginResource, '/doctor-login')
-
 
 class PatientLoginResource(Resource):
     def post(self):
         data = request.get_json()
         identifier = data.get("identifier", "").strip().lower()
-
         patient = Patient.query.filter(
             or_(
                 Patient.identifier.ilike(identifier),
@@ -53,14 +46,11 @@ class PatientLoginResource(Resource):
                 db.cast(Patient.id, db.String).ilike(identifier)
             )
         ).first()
-
         if not patient:
             return {"error": "No patient found with that information"}, 404
-
         return patient.to_dict(), 200
 
 api.add_resource(PatientLoginResource, '/patient-login')
-
 
 class DoctorsResource(Resource):
     def get(self):
@@ -68,30 +58,44 @@ class DoctorsResource(Resource):
 
 api.add_resource(DoctorsResource, '/doctors')
 
-
 class SingleDoctorResource(Resource):
     def get(self, id):
-        doctor = Doctor.query.get_or_404(id)
-        return doctor.to_dict(), 200
+        return Doctor.query.get_or_404(id).to_dict(), 200
 
 api.add_resource(SingleDoctorResource, '/doctors/<int:id>')
 
-
 class DoctorAppointmentsResource(Resource):
     def get(self, id):
-        appointments = Appointment.query.filter_by(doctor_id=id).all()
-        return [a.to_dict() for a in appointments], 200
+        return [a.to_dict() for a in Appointment.query.filter_by(doctor_id=id)], 200
 
 api.add_resource(DoctorAppointmentsResource, '/doctors/<int:id>/appointments')
 
-
 class DoctorEmergenciesResource(Resource):
     def get(self, id):
-        emergencies = EmergencyRequest.query.all()
-        return [e.to_dict() for e in emergencies], 200
+        return [e.to_dict() for e in EmergencyRequest.query.all()], 200
 
 api.add_resource(DoctorEmergenciesResource, '/doctors/<int:id>/emergencies')
 
+class DoctorNotesByDoctorIdResource(Resource):
+    def get(self, doctor_id):
+        notes = DoctorNote.query.filter_by(doctor_id=doctor_id).all()
+        result = []
+        for note in notes:
+            note_data = note.to_dict()
+            appointment = Appointment.query.get(note.appointment_id)
+            if appointment:
+                note_data["appointment"] = {
+                    "id": appointment.id,
+                    "date": appointment.date,
+                    "time": appointment.time,
+                    "symptoms": [s.to_dict() for s in appointment.symptoms]
+                }
+            else:
+                note_data["appointment"] = None
+            result.append(note_data)
+        return result, 200
+
+api.add_resource(DoctorNotesByDoctorIdResource, '/doctors/<int:doctor_id>/doctor-notes')
 
 class PatientsResource(Resource):
     def get(self):
@@ -99,22 +103,16 @@ class PatientsResource(Resource):
 
     def post(self):
         data = request.get_json()
-        new_patient = Patient(
-            name=data.get("name"),
-            age=data.get("age"),
-            identifier=data.get("identifier")
-        )
-        db.session.add(new_patient)
+        p = Patient(name=data["name"], age=data["age"], identifier=data["identifier"])
+        db.session.add(p)
         db.session.commit()
-        return new_patient.to_dict(), 201
+        return p.to_dict(), 201
 
 api.add_resource(PatientsResource, '/patients')
 
-
 class PatientAppointmentsResource(Resource):
     def get(self, id):
-        patient = Patient.query.get_or_404(id)
-        return [appt.to_dict() for appt in patient.appointments], 200
+        return [a.to_dict() for a in Patient.query.get_or_404(id).appointments], 200
 
 api.add_resource(PatientAppointmentsResource, '/patients/<int:id>/appointments')
 
@@ -124,7 +122,7 @@ class AppointmentsResource(Resource):
 
     def post(self):
         data = request.get_json()
-        appt = Appointment(
+        a = Appointment(
             patient_id=data['patient_id'],
             doctor_id=data['doctor_id'],
             date=data['date'],
@@ -132,52 +130,27 @@ class AppointmentsResource(Resource):
             status=data.get('status', 'Confirmed'),
             last_updated=datetime.utcnow().isoformat()
         )
-
-        notes = data.get('notes', '').strip()
-        if notes:
+        if notes := data.get('notes', '').strip():
             symptom = Symptom.query.filter_by(name=notes).first()
             if not symptom:
                 symptom = Symptom(name=notes)
                 db.session.add(symptom)
-            appt.symptoms.append(symptom)
-
-        db.session.add(appt)
+            a.symptoms.append(symptom)
+        db.session.add(a)
         db.session.commit()
-        return appt.to_dict(), 201
+        return a.to_dict(), 201
 
     def patch(self, id):
-        appt = Appointment.query.get_or_404(id)
+        a = Appointment.query.get_or_404(id)
         data = request.get_json()
-        appt.date = data.get("date", appt.date)
-        appt.time = data.get("time", appt.time)
-        appt.last_updated = datetime.utcnow().isoformat()
+        a.date = data.get("date", a.date)
+        a.time = data.get("time", a.time)
+        a.last_updated = datetime.utcnow().isoformat()
         db.session.commit()
-        return appt.to_dict(), 200
+        return a.to_dict(), 200
 
 api.add_resource(AppointmentsResource, '/appointments', endpoint='appointments_list')
 api.add_resource(AppointmentsResource, '/appointments/<int:id>', endpoint='appointment_detail')
-
-class EmergenciesResource(Resource):
-    def get(self):
-        return [e.to_dict() for e in EmergencyRequest.query.all()], 200
-
-    def post(self):
-        data = request.get_json()
-        emergency = EmergencyRequest(
-            patient_id=data.get('patient_id'),
-            description=data.get('description'),
-            urgency_level=data.get('urgency_level', 'Medium')
-        )
-        db.session.add(emergency)
-        db.session.commit()
-        return emergency.to_dict(), 201
-
-api.add_resource(EmergenciesResource, '/emergencies')
-class SymptomListResource(Resource):
-    def get(self):
-        return [s.to_dict() for s in Symptom.query.all()], 200
-
-api.add_resource(SymptomListResource, '/symptoms')
 
 class DoctorNoteListResource(Resource):
     def post(self):
@@ -185,8 +158,11 @@ class DoctorNoteListResource(Resource):
         note = DoctorNote(
             doctor_id=data['doctor_id'],
             patient_id=data['patient_id'],
-            leave_duration=data.get('leave_duration'),
-            recommendation=data.get('recommendation'),
+            appointment_id=data.get('appointment_id'),
+            leave_days=data.get('leave_days'),
+            diagnosis=data.get('diagnosis'),
+            prescription=data.get('prescription'),
+            recommendation=data.get('recommendation', ''),
             created_at=datetime.utcnow().isoformat()
         )
         db.session.add(note)
@@ -195,14 +171,49 @@ class DoctorNoteListResource(Resource):
 
 api.add_resource(DoctorNoteListResource, '/doctor-notes')
 
-
 class PatientDoctorNotesResource(Resource):
     def get(self, patient_id):
         notes = DoctorNote.query.filter_by(patient_id=patient_id).all()
-        return [n.to_dict() for n in notes], 200
+        result = []
+        for note in notes:
+            note_data = note.to_dict()
+            appointment = Appointment.query.get(note.appointment_id)
+            if appointment:
+                note_data["appointment"] = {
+                    "id": appointment.id,
+                    "date": appointment.date,
+                    "time": appointment.time,
+                    "symptoms": [s.to_dict() for s in appointment.symptoms]
+                }
+            else:
+                note_data["appointment"] = None
+            result.append(note_data)
+        return result, 200
 
 api.add_resource(PatientDoctorNotesResource, '/patients/<int:patient_id>/doctor-notes')
 
+class DoctorNoteResource(Resource):
+    def delete(self, note_id):
+        note = DoctorNote.query.get_or_404(note_id)
+        db.session.delete(note)
+        db.session.commit()
+        return '', 204
+
+api.add_resource(DoctorNoteResource, '/doctor-notes/<int:note_id>')
+
+# 🆕 PATCH appointment from doctor dashboard
+class UpdateNoteAppointmentTime(Resource):
+    def patch(self, note_id):
+        note = DoctorNote.query.get_or_404(note_id)
+        appointment = Appointment.query.get_or_404(note.appointment_id)
+        data = request.get_json()
+        appointment.date = data.get('date', appointment.date)
+        appointment.time = data.get('time', appointment.time)
+        appointment.last_updated = datetime.utcnow().isoformat()
+        db.session.commit()
+        return appointment.to_dict(), 200
+
+api.add_resource(UpdateNoteAppointmentTime, '/doctor-notes/<int:note_id>/update-appointment')
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

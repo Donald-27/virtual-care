@@ -1,99 +1,159 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import jsPDF from 'jspdf';
 import '../assets/css/BookingForm.css';
 
 export default function Patients() {
   const [identifier, setIdentifier] = useState('');
   const [patient, setPatient] = useState(null);
+  const [notes, setNotes] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-    setPatient(null);
-    setAppointments([]);
-
     try {
-     
-      const loginRes = await fetch('http://localhost:5555/patient-login', {
+      const res = await fetch('/patient-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier })
+        body: JSON.stringify({ identifier }),
       });
-
-      if (!loginRes.ok) {
-        const errData = await loginRes.json();
-        setError(errData.error || 'Login failed');
-        return;
+      if (!res.ok) {
+        const err = await res.json();
+        return setError(err.error || 'Login failed');
       }
+      const data = await res.json();
+      setPatient(data);
 
-      const patientData = await loginRes.json();
-      setPatient(patientData);
+      const notesRes = await fetch(`/patients/${data.id}/doctor-notes`);
+      const notesData = await notesRes.json();
+      setNotes(notesData);
 
-    
-      const apptRes = await fetch(`http://localhost:5555/patients/${patientData.id}/appointments`);
-      const apptData = await apptRes.json();
-      setAppointments(apptData);
-    } catch (err) {
-      console.error(err);
-      setError('Network error or server unavailable');
+      const apptRes = await fetch(`/patients/${data.id}/appointments`);
+      const apptsData = await apptRes.json();
+      setAppointments(apptsData);
+    } catch {
+      setError('Network error');
     }
+  };
+
+  const handleDownload = (note) => {
+    const appointment = appointments.find((a) => a.id === note.appointment_id);
+    const doc = new jsPDF();
+    const issued = new Date();
+    const start = issued.toDateString();
+    const end = new Date(issued.getTime() + Number(note.leave_days) * 86400000).toDateString();
+
+    doc.setFont('courier', 'normal');
+    doc.setFontSize(10);
+
+    doc.text('VirtualCare General Hospital', 55, 20);
+    doc.text('Off Hospital Road, Nairobi, Kenya', 53, 26);
+    doc.text('Tel: +254 700 000 000 | info@virtualcare.com', 40, 32);
+    doc.text('-------------------------------------------------------------', 20, 38);
+
+    doc.setFontSize(12);
+    doc.text('*** OFFICIAL DOCTOR\'S NOTE ***', 48, 48);
+
+    doc.setFontSize(10);
+    doc.text(`Date Issued : ${issued.toDateString()}`, 20, 56);
+    doc.text(`Patient     : ${note.patient_name}`, 20, 64);
+    doc.text(`Patient ID  : ${note.patient_id}`, 20, 72);
+    doc.text(`Doctor      : Dr. ${note.doctor_name}`, 20, 80);
+
+    if (appointment) {
+      doc.text(`Visit Date  : ${appointment.date}`, 20, 88);
+      doc.text(`Visit Time  : ${appointment.time}`, 20, 96);
+      doc.text(`Symptoms    : ${appointment.symptoms.map(s => s.name).join(', ') || 'None'}`, 20, 104);
+    }
+
+    doc.text('-------------------------------------------------------------', 20, 112);
+    doc.text(`Diagnosis    : ${note.diagnosis}`, 20, 120);
+    doc.text(`Prescription : ${note.prescription}`, 20, 128);
+    doc.text('Additional   : Patient advised rest and hydration.', 20, 136);
+
+    doc.text('-------------------------------------------------------------', 20, 144);
+    doc.text('Medical Leave Recommendation', 60, 152);
+    doc.text('-------------------------------------------------------------', 20, 160);
+    doc.text(`Leave for ${note.leave_days} day(s) — ${start} to ${end}`, 20, 168);
+    doc.text('Avoid strenuous activities; follow medication.', 20, 176);
+    doc.text('-------------------------------------------------------------', 20, 184);
+
+    doc.text('Doctor\'s Declaration', 70, 192);
+    doc.text('-------------------------------------------------------------', 20, 198);
+    doc.text('This note excuses patient from duties for medical reasons.', 20, 206);
+    doc.text('Recommendation based on professional assessment.', 20, 214);
+
+    doc.text('Signature:', 20, 222);
+    doc.line(60, 220, 150, 220);
+    doc.text('(Stamp Here)', 80, 228);
+
+    doc.setFontSize(8);
+    doc.text('Confidential medical document. Unauthorized duplication prohibited.', 30, 240);
+    doc.text('© 2025 VirtualCare General Hospital', 55, 248);
+
+    doc.save(`DoctorNote_${note.patient_name}.pdf`);
+  };
+
+  const handleDelete = (id) => {
+    fetch(`/doctor-notes/${id}`, { method: 'DELETE' }).then(() =>
+      setNotes(notes.filter((n) => n.id !== id))
+    );
   };
 
   return (
     <div className="booking-container">
-      <h2>Patient Appointment History</h2>
-      <form onSubmit={handleSubmit} className="booking-form">
-        <div className="form-group">
-          <label>Enter your ID, Birth Certificate number, or Full Name:</label>
-          <input
-            type="text"
-            value={identifier}
-            onChange={(e) => setIdentifier(e.target.value)}
-            placeholder="E.g. 12345678 or Baby John"
-            required
-          />
-        </div>
-        <button type="submit" className="btn-book">View Appointments</button>
+      <h2>Patient Portal</h2>
+      <form onSubmit={handleLogin}>
+        <label>ID / Name:</label>
+        <input
+          type="text"
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
+          required
+        />
+        <button className="btn-book">Login</button>
       </form>
 
-      {error && <div className="alert error">{error}</div>}
+      {error && <p className="alert error">{error}</p>}
 
       {patient && (
-        <div style={{ marginTop: '2rem' }}>
-          <h3>Hello, {patient.name}</h3>
-          <p><strong>Age:</strong> {patient.age || 'N/A'} | <strong>ID:</strong> {patient.identifier || patient.id}</p>
-
-          <h3>Your Appointments</h3>
-          {appointments.length ? (
-            <table style={{ width: '100%', marginTop: '1rem' }}>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Doctor</th>
-                  <th>Date</th>
-                  <th>Time</th>
-                  <th>Status</th>
-                  <th>Last Updated</th>
-                </tr>
-              </thead>
-              <tbody>
-                {appointments.map((a) => (
-                  <tr key={a.id}>
-                    <td>{a.id}</td>
-                    <td>{a.doctor_name}</td>
-                    <td>{a.date}</td>
-                    <td>{a.time}</td>
-                    <td>{a.status}</td>
-                    <td>{a.last_updated ? new Date(a.last_updated).toLocaleString() : '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <>
+          <h3>Welcome, {patient.name}</h3>
+          <h4>Your Doctor’s Notes</h4>
+          {notes.length > 0 ? (
+            notes.map((note) => {
+              const appointment = appointments.find((a) => a.id === note.appointment_id);
+              return (
+                <div key={note.id} className="form-group">
+                  <p><strong>Doctor:</strong> Dr. {note.doctor_name}</p>
+                  <p><strong>Diagnosis:</strong> {note.diagnosis}</p>
+                  <p><strong>Prescription:</strong> {note.prescription}</p>
+                  <p><strong>Leave Days:</strong> {note.leave_days}</p>
+                  {appointment && (
+                    <>
+                      <p><strong>Visit Date:</strong> {appointment.date}</p>
+                      <p><strong>Visit Time:</strong> {appointment.time}</p>
+                      <p><strong>Symptoms:</strong> {appointment.symptoms.map(s => s.name).join(', ')}</p>
+                    </>
+                  )}
+                  <button className="btn-book" onClick={() => handleDownload(note)}>
+                    Download PDF
+                  </button>
+                  <button
+                    className="btn-delete"
+                    onClick={() => handleDelete(note.id)}
+                    style={{ marginLeft: '10px' }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              );
+            })
           ) : (
-            <p>No appointments found.</p>
+            <p>No notes available.</p>
           )}
-        </div>
+        </>
       )}
     </div>
   );

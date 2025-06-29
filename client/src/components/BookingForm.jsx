@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 import {
   fetchDoctors,
   createPatient,
@@ -7,64 +9,80 @@ import {
 import '../assets/css/BookingForm.css';
 
 export default function BookingForm() {
-  const [age, setAge] = useState('');
-  const [idOrBirthCert, setIdOrBirthCert] = useState('');
-  const [patientName, setPatientName] = useState('');
   const [doctors, setDoctors] = useState([]);
-  const [selectedDoctor, setSelectedDoctor] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [additionalNotes, setAdditionalNotes] = useState('');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
     fetchDoctors().then(data => setDoctors(data || []));
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage('');
+  const formik = useFormik({
+    initialValues: {
+      age: '',
+      patientName: '',
+      idOrBirthCert: '',
+      selectedDoctor: '',
+      date: '',
+      time: '',
+      additionalNotes: ''
+    },
+    validationSchema: Yup.object({
+      age: Yup.number()
+        .typeError('Age must be a number')
+        .required('Age is required')
+        .min(0, 'Age must be 0 or more'),
 
-    const identifier = age < 1 ? patientName : idOrBirthCert;
+      patientName: Yup.string().required('Name is required'),
 
-    if (!identifier) {
-      setMessage('Please provide a valid ID, Birth Certificate number or Name.');
-      return;
+      idOrBirthCert: Yup.string().when('age', (age, schema) => {
+        const numericAge = parseFloat(age);
+        if (numericAge >= 1) {
+          return schema.required('ID or Birth Cert is required');
+        }
+        return schema;
+      }),
+
+      selectedDoctor: Yup.string().required('Please select a doctor'),
+      date: Yup.string().required('Date is required'),
+      time: Yup.string().required('Time is required'),
+      additionalNotes: Yup.string().required('Please describe your symptoms')
+    }),
+    onSubmit: async (values, { resetForm, setSubmitting }) => {
+      setMessage('');
+      const { age, patientName, idOrBirthCert, selectedDoctor, date, time, additionalNotes } = values;
+      const identifier = parseFloat(age) < 1 ? patientName : idOrBirthCert;
+
+      try {
+        const patient = await createPatient({
+          name: patientName,
+          identifier: identifier,
+          age: parseInt(age)
+        });
+
+        const apptData = {
+          patient_id: patient.id,
+          doctor_id: parseInt(selectedDoctor),
+          date,
+          time,
+          notes: additionalNotes,
+          status: "Confirmed"
+        };
+
+        const appt = await createAppointment(apptData);
+        setMessage(`Appointment created successfully (ID: ${appt.id})`);
+        resetForm();
+      } catch (err) {
+        console.error(err);
+        setMessage('Failed to book appointment.');
+      } finally {
+        setSubmitting(false);
+      }
     }
+  });
 
-    try {
-     
-      const patient = await createPatient({
-        name: patientName,
-        identifier: identifier,
-        age: parseInt(age)
-      });
-
- 
-      const apptData = {
-        patient_id: patient.id,
-        doctor_id: parseInt(selectedDoctor),
-        date,
-        time,
-        notes: additionalNotes,
-        status: "Confirmed"
-      };
-
-      const appt = await createAppointment(apptData);
-      setMessage(`Appointment created successfully (ID: ${appt.id})`);
-
-      setAge('');
-      setIdOrBirthCert('');
-      setPatientName('');
-      setSelectedDoctor('');
-      setDate('');
-      setTime('');
-      setAdditionalNotes('');
-    } catch (err) {
-      console.error(err);
-      setMessage('Failed to book appointment.');
-    }
-  };
+  const {
+    values, handleChange, handleSubmit, errors, touched, isSubmitting
+  } = formik;
 
   return (
     <div className="booking-container">
@@ -75,72 +93,82 @@ export default function BookingForm() {
           Age:
           <input
             type="number"
-            value={age}
-            min="0"
-            onChange={e => setAge(e.target.value)}
+            name="age"
+            value={values.age}
+            onChange={handleChange}
             placeholder="Enter age"
-            required
           />
+          {touched.age && errors.age && <div className="error">{errors.age}</div>}
         </label>
 
-        {age !== '' && age >= 18 && (
+        {values.age !== '' && parseFloat(values.age) >= 18 && (
           <label>
             National ID Number:
             <input
               type="text"
-              value={idOrBirthCert}
-              onChange={e => setIdOrBirthCert(e.target.value)}
+              name="idOrBirthCert"
+              value={values.idOrBirthCert}
+              onChange={handleChange}
               placeholder="Enter ID number"
-              required
             />
+            {touched.idOrBirthCert && errors.idOrBirthCert && (
+              <div className="error">{errors.idOrBirthCert}</div>
+            )}
           </label>
         )}
 
-        {age !== '' && age < 18 && age >= 1 && (
+        {values.age !== '' && parseFloat(values.age) < 18 && parseFloat(values.age) >= 1 && (
           <label>
             Birth Certificate Number:
             <input
               type="text"
-              value={idOrBirthCert}
-              onChange={e => setIdOrBirthCert(e.target.value)}
+              name="idOrBirthCert"
+              value={values.idOrBirthCert}
+              onChange={handleChange}
               placeholder="Enter birth certificate number"
-              required
             />
+            {touched.idOrBirthCert && errors.idOrBirthCert && (
+              <div className="error">{errors.idOrBirthCert}</div>
+            )}
           </label>
         )}
 
-        {age !== '' && age < 1 && (
+        {values.age !== '' && parseFloat(values.age) < 1 ? (
           <label>
             Infant's Full Name:
             <input
               type="text"
-              value={patientName}
-              onChange={e => setPatientName(e.target.value)}
+              name="patientName"
+              value={values.patientName}
+              onChange={handleChange}
               placeholder="Enter infant's name"
-              required
             />
+            {touched.patientName && errors.patientName && (
+              <div className="error">{errors.patientName}</div>
+            )}
           </label>
-        )}
-
-        {!(age !== '' && age < 1) && (
+        ) : (
           <label>
             Your Name:
             <input
               type="text"
-              value={patientName}
-              onChange={e => setPatientName(e.target.value)}
+              name="patientName"
+              value={values.patientName}
+              onChange={handleChange}
               placeholder="Enter your full name"
-              required
             />
+            {touched.patientName && errors.patientName && (
+              <div className="error">{errors.patientName}</div>
+            )}
           </label>
         )}
 
         <label>
           Select Doctor:
           <select
-            value={selectedDoctor}
-            onChange={e => setSelectedDoctor(e.target.value)}
-            required
+            name="selectedDoctor"
+            value={values.selectedDoctor}
+            onChange={handleChange}
           >
             <option value="">-- Choose Doctor --</option>
             {doctors.map(doc => (
@@ -149,40 +177,50 @@ export default function BookingForm() {
               </option>
             ))}
           </select>
+          {touched.selectedDoctor && errors.selectedDoctor && (
+            <div className="error">{errors.selectedDoctor}</div>
+          )}
         </label>
 
         <label>
           Appointment Date:
           <input
             type="date"
-            value={date}
-            onChange={e => setDate(e.target.value)}
-            required
+            name="date"
+            value={values.date}
+            onChange={handleChange}
           />
+          {touched.date && errors.date && <div className="error">{errors.date}</div>}
         </label>
 
         <label>
           Appointment Time:
           <input
             type="time"
-            value={time}
-            onChange={e => setTime(e.target.value)}
-            required
+            name="time"
+            value={values.time}
+            onChange={handleChange}
           />
+          {touched.time && errors.time && <div className="error">{errors.time}</div>}
         </label>
 
         <label>
           Describe Your Symptoms:
           <textarea
+            name="additionalNotes"
             placeholder="Enter symptoms (e.g., Fever, Cough)"
-            value={additionalNotes}
-            onChange={e => setAdditionalNotes(e.target.value)}
+            value={values.additionalNotes}
+            onChange={handleChange}
             rows="4"
-            required
           />
+          {touched.additionalNotes && errors.additionalNotes && (
+            <div className="error">{errors.additionalNotes}</div>
+          )}
         </label>
 
-        <button type="submit" className="submit-btn">Confirm Booking</button>
+        <button type="submit" className="submit-btn" disabled={isSubmitting}>
+          {isSubmitting ? "Booking..." : "Confirm Booking"}
+        </button>
       </form>
 
       {message && (
