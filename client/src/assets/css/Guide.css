@@ -69,7 +69,6 @@
   color: #444;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .guide-step {
     flex-direction: column;

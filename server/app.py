@@ -4,7 +4,6 @@ from flask_cors import CORS
 from sqlalchemy import or_
 from datetime import datetime
 from flask_migrate import Migrate
-
 from config import db
 from models import Doctor, Patient, Appointment, EmergencyRequest, Symptom, DoctorNote
 
@@ -201,7 +200,6 @@ class DoctorNoteResource(Resource):
 
 api.add_resource(DoctorNoteResource, '/doctor-notes/<int:note_id>')
 
-# 🆕 PATCH appointment from doctor dashboard
 class UpdateNoteAppointmentTime(Resource):
     def patch(self, note_id):
         note = DoctorNote.query.get_or_404(note_id)

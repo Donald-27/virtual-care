@@ -137,16 +137,15 @@ export default function Patients() {
                       <p><strong>Symptoms:</strong> {appointment.symptoms.map(s => s.name).join(', ')}</p>
                     </>
                   )}
-                  <button className="btn-book" onClick={() => handleDownload(note)}>
-                    Download PDF
-                  </button>
-                  <button
-                    className="btn-delete"
-                    onClick={() => handleDelete(note.id)}
-                    style={{ marginLeft: '10px' }}
-                  >
-                    Delete
-                  </button>
+                <div className="action-buttons">
+  <button className="btn-book" onClick={() => handleDownload(note)}>
+    Download PDF
+  </button>
+  <button className="btn-delete" onClick={() => handleDelete(note.id)}>
+    Delete
+  </button>
+</div>
+
                 </div>
               );
             })

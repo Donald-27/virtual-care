@@ -17,7 +17,6 @@
   font-size: 20px;
   margin-bottom: 30px;
 }
-
 .btn-hero {
   background: #fff;
   color: #0077b6;
@@ -27,7 +26,6 @@
   text-decoration: none;
   transition: background 0.3s;
 }
-
 .btn-hero:hover {
   background: #caf0f8;
 }
@@ -37,7 +35,6 @@
   background-color: #f1faff;
   text-align: center;
 }
-
 .steps-section h2 {
   font-size: 32px;
   margin-bottom: 40px;
@@ -57,23 +54,19 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
   transition: transform 0.3s ease;
 }
-
 .step-card:hover {
   transform: translateY(-5px);
 }
-
 .step-card img {
   width: 100%;
   border-radius: 10px;
   margin-bottom: 15px;
 }
-
 .step-card h3 {
   font-size: 20px;
   color: #023e8a;
   margin-bottom: 10px;
 }
-
 .step-link {
   display: inline-block;
   margin-top: 10px;
@@ -84,23 +77,19 @@
   font-size: 14px;
   text-decoration: none;
 }
-
 .step-link:hover {
   background: #0096c7;
 }
-
 .cta-section {
   background: #0077b6;
   color: white;
   padding: 50px 20px;
   text-align: center;
 }
-
 .cta-section h2 {
   font-size: 28px;
   margin-bottom: 15px;
 }
-
 .btn-cta {
   background: white;
   color: #0077b6;
@@ -110,9 +99,53 @@
   text-decoration: none;
   transition: background 0.3s;
 }
-
 .btn-cta:hover {
   background: #caf0f8;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn-book {
+  background-color: #0077b6;
+  color: white;
+  padding: 10px 20px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.btn-book:hover {
+  background-color: #005f8a;
+  transform: scale(1.03);
+}
+.btn-book:active {
+  background-color: #00496b;
+  transform: scale(0.98);
+}
+
+.btn-delete {
+  background-color: #dc3545;
+  color: #fff;
+  padding: 10px 20px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.btn-delete:hover {
+  background-color: #c82333;
+  transform: scale(1.05);
+}
+.btn-delete:active {
+  background-color: #a71d2a;
+  transform: scale(0.98);
 }
 
 @media (max-width: 768px) {
@@ -122,5 +155,16 @@
   .steps-section h2,
   .cta-section h2 {
     font-size: 24px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btn-book,
+  .btn-delete {
+    width: 100%;
+    margin-bottom: 10px;
   }
 }

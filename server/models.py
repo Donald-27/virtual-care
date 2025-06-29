@@ -1,6 +1,4 @@
 from config import db
-
-# Association Tables
 appointment_symptoms = db.Table(
     'appointment_symptoms',
     db.Column('appointment_id', db.Integer, db.ForeignKey('appointments.id')),
