@@ -22,10 +22,9 @@ export default function DoctorLogin() {
         const response = await fetchDoctorLogin(values);
 
         if (response?.access_token && response.doctor?.id) {
-          // ✅ Save token to localStorage
+    
           localStorage.setItem("token", response.access_token);
 
-          // ✅ Redirect to doctor's dashboard
           navigate(`/dashboard/${response.doctor.id}`);
         } else {
           setErrors({ password: 'Invalid login credentials' });
