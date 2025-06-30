@@ -15,11 +15,13 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///virtualcare.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'super-secret-key' 
 
+
 db.init_app(app)
 migrate = Migrate(app, db)
 api = Api(app)
 CORS(app)
 jwt = JWTManager(app)
+
 
 @app.route('/')
 def home():
@@ -61,7 +63,6 @@ class PatientLoginResource(Resource):
 
 api.add_resource(PatientLoginResource, '/patient-login')
 
-# ---------- DOCTOR RESOURCES ----------
 class DoctorsResource(Resource):
     def get(self):
         return [d.to_dict() for d in Doctor.query.all()], 200
@@ -117,7 +118,7 @@ class DoctorNotesByDoctorIdResource(Resource):
 
 api.add_resource(DoctorNotesByDoctorIdResource, '/doctors/<int:doctor_id>/doctor-notes')
 
-# ---------- PATIENT RESOURCES ----------
+
 class PatientsResource(Resource):
     def get(self):
         return [p.to_dict() for p in Patient.query.all()], 200
@@ -130,8 +131,8 @@ class PatientsResource(Resource):
         return p.to_dict(), 201
 
 api.add_resource(PatientsResource, '/patients')
-
 class PatientAppointmentsResource(Resource):
+    
     @jwt_required()
     def get(self, id):
         current_user = get_jwt_identity()
