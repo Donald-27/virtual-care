@@ -16,6 +16,7 @@ export default function BookingForm() {
     fetchDoctors().then(data => setDoctors(data || []));
   }, []);
 
+
   const formik = useFormik({
     initialValues: {
       age: '',
@@ -133,6 +134,7 @@ export default function BookingForm() {
           </label>
         )}
 
+
         {values.age !== '' && parseFloat(values.age) < 1 ? (
           <label>
             Infant's Full Name:
@@ -162,7 +164,6 @@ export default function BookingForm() {
             )}
           </label>
         )}
-
         <label>
           Select Doctor:
           <select

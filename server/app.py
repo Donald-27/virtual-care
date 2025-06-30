@@ -151,6 +151,7 @@ class AppointmentsResource(Resource):
 api.add_resource(AppointmentsResource, '/appointments', endpoint='appointments_list')
 api.add_resource(AppointmentsResource, '/appointments/<int:id>', endpoint='appointment_detail')
 
+
 class DoctorNoteListResource(Resource):
     def post(self):
         data = request.get_json()
