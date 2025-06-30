@@ -8,7 +8,6 @@ import HowItWorks from './components/HowItWorks';
 import Services from './components/Services';
 import Technology from './components/Technology';
 import Guide from './components/Guide';
-
 import BookingForm from './components/BookingForm';
 import Emergency from './components/Emergency';
 import Patients from './components/Patients';

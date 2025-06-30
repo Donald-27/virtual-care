@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import '../assets/css/BookingForm.css';
 
+
 export default function DoctorDashboard() {
   const { id: doctorId } = useParams();
   const [appts, setAppts] = useState([]);
