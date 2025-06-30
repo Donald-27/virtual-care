@@ -132,7 +132,7 @@ class PatientsResource(Resource):
 
 api.add_resource(PatientsResource, '/patients')
 class PatientAppointmentsResource(Resource):
-    
+
     @jwt_required()
     def get(self, id):
         current_user = get_jwt_identity()
@@ -169,11 +169,11 @@ class PatientDoctorNotesResource(Resource):
 
 api.add_resource(PatientDoctorNotesResource, '/patients/<int:patient_id>/doctor-notes')
 
-# ---------- SHARED ----------
 class AppointmentsResource(Resource):
     @jwt_required()
     def get(self):
         return [a.to_dict() for a in Appointment.query.all()], 200
+
 
     @jwt_required()
     def post(self):
@@ -210,6 +210,7 @@ api.add_resource(AppointmentsResource, '/appointments', endpoint='appointments_l
 api.add_resource(AppointmentsResource, '/appointments/<int:id>', endpoint='appointment_detail')
 
 class DoctorNoteListResource(Resource):
+    
     @jwt_required()
     def post(self):
         data = request.get_json()
