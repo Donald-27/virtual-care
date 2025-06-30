@@ -210,7 +210,8 @@ api.add_resource(AppointmentsResource, '/appointments', endpoint='appointments_l
 api.add_resource(AppointmentsResource, '/appointments/<int:id>', endpoint='appointment_detail')
 
 class DoctorNoteListResource(Resource):
-    
+
+
     @jwt_required()
     def post(self):
         data = request.get_json()
@@ -246,6 +247,7 @@ class UpdateNoteAppointmentTime(Resource):
         note = DoctorNote.query.get_or_404(note_id)
         appointment = Appointment.query.get_or_404(note.appointment_id)
         data = request.get_json()
+        
         appointment.date = data.get('date', appointment.date)
         appointment.time = data.get('time', appointment.time)
         appointment.last_updated = datetime.utcnow().isoformat()
