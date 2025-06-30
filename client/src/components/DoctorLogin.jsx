@@ -13,6 +13,7 @@ export default function DoctorLogin() {
       doctor_id: '',
       password: '',
     },
+    
     validationSchema: Yup.object({
       doctor_id: Yup.number().required('Doctor ID is required'),
       password: Yup.string().required('Password is required'),
@@ -37,6 +38,7 @@ export default function DoctorLogin() {
       }
     },
   });
+
 
   return (
     <div className="booking-container">
