@@ -1,9 +1,11 @@
 from config import db
+
 appointment_symptoms = db.Table(
     'appointment_symptoms',
     db.Column('appointment_id', db.Integer, db.ForeignKey('appointments.id')),
     db.Column('symptom_id', db.Integer, db.ForeignKey('symptoms.id'))
 )
+
 
 emergency_symptoms = db.Table(
     'emergency_symptoms',
@@ -73,7 +75,6 @@ class Appointment(db.Model):
     last_updated = db.Column(db.String)
 
     symptoms = db.relationship('Symptom', secondary=appointment_symptoms, backref='appointments')
-
     notes = db.relationship('DoctorNote', backref='appointment', lazy=True)
 
     def to_dict(self):

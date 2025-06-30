@@ -5,27 +5,39 @@ from sqlalchemy import or_
 from datetime import datetime
 from flask_migrate import Migrate
 from flask_jwt_extended import (
-    JWTManager, create_access_token, jwt_required, get_jwt_identity
+    JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
 )
 from config import db
 from models import Doctor, Patient, Appointment, EmergencyRequest, Symptom, DoctorNote
 
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///virtualcare.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = 'super-secret-key' 
-
+app.config['JWT_SECRET_KEY'] = 'super-secret-key'
 
 db.init_app(app)
 migrate = Migrate(app, db)
 api = Api(app)
-CORS(app)
+
+CORS(app, supports_credentials=True, resources={r"/*": {"origins": "*"}})
+
+
+
 jwt = JWTManager(app)
 
+@jwt.user_identity_loader
+def user_identity_lookup(identity):
+    return str(identity['id'])
+
+@jwt.additional_claims_loader
+def add_claims_to_access_token(identity):
+    return identity
 
 @app.route('/')
 def home():
     return '<h1>VirtualCare Backend is Running</h1>'
+
 class DoctorLoginResource(Resource):
     def post(self):
         data = request.get_json()
@@ -35,10 +47,7 @@ class DoctorLoginResource(Resource):
         if not doctor or password.replace(" ", "").lower() != doctor.name.replace(" ", "").lower():
             return {"error": "Invalid login credentials"}, 401
         token = create_access_token(identity={"id": doctor.id, "role": "doctor"})
-        return {
-            "access_token": token,
-            "doctor": doctor.to_dict()
-        }, 200
+        return {"access_token": token, "doctor": doctor.to_dict()}, 200
 
 api.add_resource(DoctorLoginResource, '/doctor-login')
 
@@ -46,22 +55,26 @@ class PatientLoginResource(Resource):
     def post(self):
         data = request.get_json()
         identifier = data.get("identifier", "").strip().lower()
+        if not identifier:
+            return {"error": "Identifier is required"}, 400
+
         patient = Patient.query.filter(
             or_(
-                Patient.identifier.ilike(identifier),
-                Patient.name.ilike(identifier),
-                db.cast(Patient.id, db.String).ilike(identifier)
+                db.func.lower(Patient.identifier) == identifier,
+                db.func.lower(Patient.name) == identifier,
+                db.cast(Patient.id, db.String) == identifier
             )
         ).first()
+
         if not patient:
             return {"error": "No patient found with that information"}, 404
+
         token = create_access_token(identity={"id": patient.id, "role": "patient"})
-        return {
-            "access_token": token,
-            "patient": patient.to_dict()
-        }, 200
+        return {"access_token": token, "patient": patient.to_dict()}, 200
 
 api.add_resource(PatientLoginResource, '/patient-login')
+
+
 
 class DoctorsResource(Resource):
     def get(self):
@@ -75,49 +88,6 @@ class SingleDoctorResource(Resource):
 
 api.add_resource(SingleDoctorResource, '/doctors/<int:id>')
 
-class DoctorAppointmentsResource(Resource):
-    @jwt_required()
-    def get(self, id):
-        current_user = get_jwt_identity()
-        if current_user['id'] != id or current_user['role'] != 'doctor':
-            return {"error": "Unauthorized"}, 403
-        return [a.to_dict() for a in Appointment.query.filter_by(doctor_id=id)], 200
-
-api.add_resource(DoctorAppointmentsResource, '/doctors/<int:id>/appointments')
-
-class DoctorEmergenciesResource(Resource):
-    @jwt_required()
-    def get(self, id):
-        return [e.to_dict() for e in EmergencyRequest.query.all()], 200
-
-api.add_resource(DoctorEmergenciesResource, '/doctors/<int:id>/emergencies')
-
-class DoctorNotesByDoctorIdResource(Resource):
-    @jwt_required()
-    def get(self, doctor_id):
-        current_user = get_jwt_identity()
-        if current_user['id'] != doctor_id or current_user['role'] != 'doctor':
-            return {"error": "Unauthorized"}, 403
-
-        notes = DoctorNote.query.filter_by(doctor_id=doctor_id).all()
-        result = []
-        for note in notes:
-            note_data = note.to_dict()
-            appointment = Appointment.query.get(note.appointment_id)
-            if appointment:
-                note_data["appointment"] = {
-                    "id": appointment.id,
-                    "date": appointment.date,
-                    "time": appointment.time,
-                    "symptoms": [s.to_dict() for s in appointment.symptoms]
-                }
-            else:
-                note_data["appointment"] = None
-            result.append(note_data)
-        return result, 200
-
-api.add_resource(DoctorNotesByDoctorIdResource, '/doctors/<int:doctor_id>/doctor-notes')
-
 
 class PatientsResource(Resource):
     def get(self):
@@ -125,55 +95,48 @@ class PatientsResource(Resource):
 
     def post(self):
         data = request.get_json()
-        p = Patient(name=data["name"], age=data["age"], identifier=data["identifier"])
-        db.session.add(p)
-        db.session.commit()
-        return p.to_dict(), 201
+        try:
+            p = Patient(
+                name=data['name'],
+                age=data['age'],
+                identifier=data['identifier']
+            )
+            db.session.add(p)
+            db.session.commit()
+            return p.to_dict(), 201
+        except Exception as e:
+            return {"error": str(e)}, 400
 
 api.add_resource(PatientsResource, '/patients')
-class PatientAppointmentsResource(Resource):
 
+
+class DoctorAppointmentsResource(Resource):
     @jwt_required()
     def get(self, id):
-        current_user = get_jwt_identity()
-        if current_user['id'] != id or current_user['role'] != 'patient':
+        identity = get_jwt_identity()
+        claims = get_jwt()
+        if int(identity) != id or claims.get('role') != 'doctor':
             return {"error": "Unauthorized"}, 403
+        appointments = Appointment.query.filter_by(doctor_id=id).all()
+        return [a.to_dict() for a in appointments], 200
 
+api.add_resource(DoctorAppointmentsResource, '/doctors/<int:id>/appointments')
+
+class PatientAppointmentsResource(Resource):
+    @jwt_required()
+    def get(self, id):
+        identity = get_jwt_identity()
+        claims = get_jwt()
+        if int(identity) != id or claims.get('role') != 'patient':
+            return {"error": "Unauthorized"}, 403
         return [a.to_dict() for a in Patient.query.get_or_404(id).appointments], 200
 
 api.add_resource(PatientAppointmentsResource, '/patients/<int:id>/appointments')
-
-class PatientDoctorNotesResource(Resource):
-    @jwt_required()
-    def get(self, patient_id):
-        current_user = get_jwt_identity()
-        if current_user['id'] != patient_id or current_user['role'] != 'patient':
-            return {"error": "Unauthorized"}, 403
-
-        notes = DoctorNote.query.filter_by(patient_id=patient_id).all()
-        result = []
-        for note in notes:
-            note_data = note.to_dict()
-            appointment = Appointment.query.get(note.appointment_id)
-            if appointment:
-                note_data["appointment"] = {
-                    "id": appointment.id,
-                    "date": appointment.date,
-                    "time": appointment.time,
-                    "symptoms": [s.to_dict() for s in appointment.symptoms]
-                }
-            else:
-                note_data["appointment"] = None
-            result.append(note_data)
-        return result, 200
-
-api.add_resource(PatientDoctorNotesResource, '/patients/<int:patient_id>/doctor-notes')
 
 class AppointmentsResource(Resource):
     @jwt_required()
     def get(self):
         return [a.to_dict() for a in Appointment.query.all()], 200
-
 
     @jwt_required()
     def post(self):
@@ -210,8 +173,6 @@ api.add_resource(AppointmentsResource, '/appointments', endpoint='appointments_l
 api.add_resource(AppointmentsResource, '/appointments/<int:id>', endpoint='appointment_detail')
 
 class DoctorNoteListResource(Resource):
-
-
     @jwt_required()
     def post(self):
         data = request.get_json()
@@ -247,7 +208,6 @@ class UpdateNoteAppointmentTime(Resource):
         note = DoctorNote.query.get_or_404(note_id)
         appointment = Appointment.query.get_or_404(note.appointment_id)
         data = request.get_json()
-        
         appointment.date = data.get('date', appointment.date)
         appointment.time = data.get('time', appointment.time)
         appointment.last_updated = datetime.utcnow().isoformat()
@@ -255,6 +215,60 @@ class UpdateNoteAppointmentTime(Resource):
         return appointment.to_dict(), 200
 
 api.add_resource(UpdateNoteAppointmentTime, '/doctor-notes/<int:note_id>/update-appointment')
+
+class DoctorNotesByDoctorIdResource(Resource):
+    @jwt_required()
+    def get(self, doctor_id):
+        identity = get_jwt_identity()
+        claims = get_jwt()
+        if int(identity) != doctor_id or claims.get('role') != 'doctor':
+            return {"error": "Unauthorized"}, 403
+
+        notes = DoctorNote.query.filter_by(doctor_id=doctor_id).all()
+        result = []
+        for note in notes:
+            note_data = note.to_dict()
+            appointment = Appointment.query.get(note.appointment_id)
+            if appointment:
+                note_data["appointment"] = {
+                    "id": appointment.id,
+                    "date": appointment.date,
+                    "time": appointment.time,
+                    "symptoms": [s.to_dict() for s in appointment.symptoms]
+                }
+            else:
+                note_data["appointment"] = None
+            result.append(note_data)
+        return result, 200
+
+api.add_resource(DoctorNotesByDoctorIdResource, '/doctors/<int:doctor_id>/doctor-notes')
+
+class PatientDoctorNotesResource(Resource):
+    @jwt_required()
+    def get(self, patient_id):
+        identity = get_jwt_identity()
+        claims = get_jwt()
+        if int(identity) != patient_id or claims.get('role') != 'patient':
+            return {"error": "Unauthorized"}, 403
+
+        notes = DoctorNote.query.filter_by(patient_id=patient_id).all()
+        result = []
+        for note in notes:
+            note_data = note.to_dict()
+            appointment = Appointment.query.get(note.appointment_id)
+            if appointment:
+                note_data["appointment"] = {
+                    "id": appointment.id,
+                    "date": appointment.date,
+                    "time": appointment.time,
+                    "symptoms": [s.to_dict() for s in appointment.symptoms]
+                }
+            else:
+                note_data["appointment"] = None
+            result.append(note_data)
+        return result, 200
+
+api.add_resource(PatientDoctorNotesResource, '/patients/<int:patient_id>/doctor-notes')
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

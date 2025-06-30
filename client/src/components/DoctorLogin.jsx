@@ -13,25 +13,28 @@ export default function DoctorLogin() {
       doctor_id: '',
       password: '',
     },
-    
+
     validationSchema: Yup.object({
-      doctor_id: Yup.number().required('Doctor ID is required'),
+      doctor_id: Yup.number()
+        .typeError('Doctor ID must be a number')
+        .required('Doctor ID is required'),
       password: Yup.string().required('Password is required'),
     }),
+
     onSubmit: async (values, { setSubmitting, setErrors }) => {
       try {
         const response = await fetchDoctorLogin(values);
 
         if (response?.access_token && response.doctor?.id) {
     
-          localStorage.setItem("token", response.access_token);
+          localStorage.setItem('token', response.access_token);
 
           navigate(`/dashboard/${response.doctor.id}`);
         } else {
           setErrors({ password: 'Invalid login credentials' });
         }
       } catch (err) {
-        console.error("Login error:", err);
+        console.error('Login error:', err);
         setErrors({ password: 'Invalid login credentials' });
       } finally {
         setSubmitting(false);
@@ -39,12 +42,10 @@ export default function DoctorLogin() {
     },
   });
 
-
   return (
     <div className="booking-container">
       <h2>Doctor Login</h2>
       <form onSubmit={formik.handleSubmit} className="booking-form">
-
         <label>
           Doctor ID:
           <input
@@ -60,7 +61,7 @@ export default function DoctorLogin() {
         </label>
 
         <label>
-          Full Name (Password):
+          Password:
           <input
             type="password"
             name="password"
@@ -73,7 +74,11 @@ export default function DoctorLogin() {
           )}
         </label>
 
-        <button type="submit" className="btn-book" disabled={formik.isSubmitting}>
+        <button
+          type="submit"
+          className="btn-book"
+          disabled={formik.isSubmitting}
+        >
           Log In
         </button>
       </form>

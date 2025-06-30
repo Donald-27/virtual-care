@@ -2,23 +2,57 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import '../assets/css/BookingForm.css';
-
+import { fetchDoctorAppointments } from '../api/api';
 
 export default function DoctorDashboard() {
   const { id: doctorId } = useParams();
+
   const [appts, setAppts] = useState([]);
   const [noteForms, setNoteForms] = useState({});
   const [notes, setNotes] = useState([]);
   const [msg, setMsg] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`/doctors/${doctorId}/appointments`)
-      .then((r) => r.json())
-      .then(setAppts);
+    async function loadData() {
+      setLoading(true);
+      setError(null);
 
-    fetch(`/doctors/${doctorId}/doctor-notes`)
-      .then((r) => r.json())
-      .then(setNotes);
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error('No authorization token found.');
+
+        const apptData = await fetchDoctorAppointments(doctorId);
+        if (Array.isArray(apptData)) {
+          setAppts(apptData);
+        } else {
+          throw new Error('Appointments data is not an array');
+        }
+        const notesResp = await fetch(`http://localhost:5555/doctors/${doctorId}/doctor-notes`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!notesResp.ok) throw new Error(`HTTP error! Status: ${notesResp.status}`);
+
+        const notesData = await notesResp.json();
+        if (Array.isArray(notesData)) {
+          setNotes(notesData);
+        } else {
+          throw new Error('Notes data is not an array');
+        }
+      } catch (err) {
+        setError(err.message || 'Failed to load data.');
+        console.error('Error loading data:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (doctorId) {
+      loadData();
+    }
   }, [doctorId]);
 
   const handleNoteSubmit = (apptId) => {
@@ -30,42 +64,50 @@ export default function DoctorDashboard() {
     const payload = {
       appointment_id: apptId,
       patient_id: form.patient_id,
-      doctor_id: parseInt(doctorId),
-      leave_days: parseInt(form.leave_days),
+      doctor_id: parseInt(doctorId, 10),
+      leave_days: parseInt(form.leave_days, 10),
       prescription: form.prescription,
       diagnosis: form.diagnosis,
     };
 
-    fetch('/doctor-notes', {
+    fetch('http://localhost:5555/doctor-notes', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
       body: JSON.stringify(payload),
     })
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP error! Status: ${r.status}`);
+        return r.json();
+      })
       .then((newNote) => {
-        setNotes([...notes, newNote]);
+        setNotes((prevNotes) => [...prevNotes, newNote]);
         setMsg('Note submitted.');
         setTimeout(() => setMsg(''), 3000);
         setNoteForms((prev) => ({ ...prev, [apptId]: {} }));
+      })
+      .catch((err) => {
+        console.error('Error submitting note:', err);
+        alert('Failed to submit note.');
       });
   };
 
   const handleDeleteNote = (noteId) => {
-    fetch(`/doctor-notes/${noteId}`, { method: 'DELETE' })
-      .then(() => setNotes(notes.filter((n) => n.id !== noteId)));
-  };
-
-  const handleAppointmentUpdate = (apptId, updatedData) => {
-    fetch(`/appointments/${apptId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatedData),
+    fetch(`http://localhost:5555/doctor-notes/${noteId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
     })
-      .then((r) => r.json())
-      .then((updated) => {
-        setAppts(appts.map((a) => (a.id === updated.id ? updated : a)));
-        setMsg('Appointment updated.');
-        setTimeout(() => setMsg(''), 3000);
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP error! Status: ${r.status}`);
+        setNotes((prev) => prev.filter((n) => n.id !== noteId));
+      })
+      .catch((err) => {
+        console.error('Error deleting note:', err);
+        alert('Failed to delete note.');
       });
   };
 
@@ -137,104 +179,108 @@ export default function DoctorDashboard() {
     doc.save(`DoctorNote_${appt.patient_name}.pdf`);
   };
 
+  if (loading) return <div>Loading dashboard...</div>;
+  if (error) return <div className="alert error">Error: {error}</div>;
+
   return (
     <div className="booking-container">
       <h2>Dr. {doctorId} Dashboard</h2>
       {msg && <div className="alert success">{msg}</div>}
 
       <h3>Appointments & Notes</h3>
+      {appts.length === 0 && <p>No appointments found.</p>}
       {appts.map((appt) => {
         const form = noteForms[appt.id] || {};
         const note = notes.find((n) => n.appointment_id === appt.id);
 
         return (
-          <div key={appt.id} className="form-group">
-            <h4>#{appt.id} — {appt.patient_name}</h4>
-            <p><strong>Date:</strong> {appt.date}</p>
-            <p><strong>Time:</strong> {appt.time}</p>
-            {appt.symptoms && appt.symptoms.length > 0 && (
-              <p><strong>Symptoms:</strong> {appt.symptoms.map(s => s.name).join(', ')}</p>
-            )}
+          <div key={appt.id} className="appt-note-box">
+           <div className="appt-details">
+  <p><strong>Patient:</strong> {appt.patient_name}</p>
+  <p><strong>Date:</strong> {appt.date}</p>
+  <p><strong>Time:</strong> {appt.time}</p>
+  <p><strong>Status:</strong> {appt.status}</p>
+  <p><strong>Symptoms:</strong> {appt.symptoms?.length ? appt.symptoms.map(s => s.name).join(', ') : 'None'}</p>
+</div>
 
-            <label>Update Date:</label>
-            <input
-              type="date"
-              value={appt.date}
-              onChange={(e) =>
-                handleAppointmentUpdate(appt.id, { date: e.target.value })
-              }
-            />
-
-            <label>Update Time:</label>
-            <input
-              type="time"
-              value={appt.time}
-              onChange={(e) =>
-                handleAppointmentUpdate(appt.id, { time: e.target.value })
-              }
-            />
 
             {!note ? (
-              <>
-                <label>Leave Days:</label>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleNoteSubmit(appt.id);
+                }}
+                className="note-form"
+              >
                 <input
-                  type="number"
-                  value={form.leave_days || ''}
-                  onChange={(e) =>
-                    setNoteForms((prev) => ({
-                      ...prev,
-                      [appt.id]: {
-                        ...form,
-                        leave_days: e.target.value,
-                        patient_id: appt.patient_id,
-                      },
-                    }))
-                  }
+                  type="hidden"
+                  value={appt.patient_id}
+                  readOnly
                 />
-
-                <label>Prescription:</label>
-                <input
-                  type="text"
-                  value={form.prescription || ''}
-                  onChange={(e) =>
-                    setNoteForms((prev) => ({
-                      ...prev,
-                      [appt.id]: { ...form, prescription: e.target.value },
-                    }))
-                  }
-                />
-
-                <label>Diagnosis:</label>
-                <input
-                  type="text"
-                  value={form.diagnosis || ''}
-                  onChange={(e) =>
-                    setNoteForms((prev) => ({
-                      ...prev,
-                      [appt.id]: { ...form, diagnosis: e.target.value },
-                    }))
-                  }
-                />
-
-                <button className="btn-book" onClick={() => handleNoteSubmit(appt.id)}>
-                  Submit & Save
-                </button>
-              </>
+                <label>
+                  Leave Days:
+                  <input
+                    type="number"
+                    min="0"
+                    value={form.leave_days || ''}
+                    onChange={(e) =>
+                      setNoteForms((prev) => ({
+                        ...prev,
+                        [appt.id]: {
+                          ...prev[appt.id],
+                          leave_days: e.target.value,
+                          patient_id: appt.patient_id,
+                        },
+                      }))
+                    }
+                    required
+                  />
+                </label>
+                <label>
+                  Prescription:
+                  <input
+                    type="text"
+                    value={form.prescription || ''}
+                    onChange={(e) =>
+                      setNoteForms((prev) => ({
+                        ...prev,
+                        [appt.id]: {
+                          ...prev[appt.id],
+                          prescription: e.target.value,
+                          patient_id: appt.patient_id,
+                        },
+                      }))
+                    }
+                    required
+                  />
+                </label>
+                <label>
+                  Diagnosis:
+                  <input
+                    type="text"
+                    value={form.diagnosis || ''}
+                    onChange={(e) =>
+                      setNoteForms((prev) => ({
+                        ...prev,
+                        [appt.id]: {
+                          ...prev[appt.id],
+                          diagnosis: e.target.value,
+                          patient_id: appt.patient_id,
+                        },
+                      }))
+                    }
+                    required
+                  />
+                </label>
+                <button type="submit">Add Note</button>
+              </form>
             ) : (
-              <div>
+              <div className="existing-note">
                 <p><strong>Diagnosis:</strong> {note.diagnosis}</p>
                 <p><strong>Prescription:</strong> {note.prescription}</p>
                 <p><strong>Leave Days:</strong> {note.leave_days}</p>
-                <button className="btn-book" onClick={() => handleDownloadPDF(appt, note)}>
-                  Download PDF
-                </button>
-                <button
-                  className="btn-delete"
-                  onClick={() => handleDeleteNote(note.id)}
-                  style={{ marginLeft: '10px' }}
-                >
-                  Delete Note
-                </button>
+                <button onClick={() => handleDeleteNote(note.id)}>Delete Note</button>
+                <button onClick={() => handleDownloadPDF(appt, note)}>Download PDF</button>
               </div>
             )}
           </div>

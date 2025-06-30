@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import jsPDF from 'jspdf';
 import '../assets/css/BookingForm.css';
+
+const API_BASE = 'http://localhost:5555';
 
 export default function Patients() {
   const [identifier, setIdentifier] = useState('');
@@ -12,28 +14,49 @@ export default function Patients() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
+    setPatient(null);
+    setNotes([]);
+    setAppointments([]);
+
     try {
-      const res = await fetch('/patient-login', {
+      const res = await fetch(`${API_BASE}/patient-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ identifier }),
       });
+
       if (!res.ok) {
-        const err = await res.json();
+        const err = await res.json().catch(() => ({}));
         return setError(err.error || 'Login failed');
       }
-      const data = await res.json();
-      setPatient(data);
 
-      const notesRes = await fetch(`/patients/${data.id}/doctor-notes`);
+      const data = await res.json();
+      const token = data.access_token;
+      const loggedInPatient = data.patient;
+
+      if (!loggedInPatient || !loggedInPatient.id || !loggedInPatient.name || !token) {
+        return setError('Invalid patient data received');
+      }
+
+      setPatient(loggedInPatient);
+      localStorage.setItem('token', token);
+
+      const notesRes = await fetch(`${API_BASE}/patients/${loggedInPatient.id}/doctor-notes`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!notesRes.ok) throw new Error('Failed to load doctor notes');
       const notesData = await notesRes.json();
       setNotes(notesData);
 
-      const apptRes = await fetch(`/patients/${data.id}/appointments`);
+      const apptRes = await fetch(`${API_BASE}/patients/${loggedInPatient.id}/appointments`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!apptRes.ok) throw new Error('Failed to load appointments');
       const apptsData = await apptRes.json();
       setAppointments(apptsData);
-    } catch {
-      setError('Network error');
+
+    } catch (err) {
+      setError(err.message || 'Network error');
     }
   };
 
@@ -46,7 +69,6 @@ export default function Patients() {
 
     doc.setFont('courier', 'normal');
     doc.setFontSize(10);
-
     doc.text('VirtualCare General Hospital', 55, 20);
     doc.text('Off Hospital Road, Nairobi, Kenya', 53, 26);
     doc.text('Tel: +254 700 000 000 | info@virtualcare.com', 40, 32);
@@ -64,7 +86,9 @@ export default function Patients() {
     if (appointment) {
       doc.text(`Visit Date  : ${appointment.date}`, 20, 88);
       doc.text(`Visit Time  : ${appointment.time}`, 20, 96);
-      doc.text(`Symptoms    : ${appointment.symptoms.map(s => s.name).join(', ') || 'None'}`, 20, 104);
+      doc.text(`Symptoms    : ${appointment.symptoms && appointment.symptoms.length > 0
+        ? appointment.symptoms.map(s => s.name).join(', ')
+        : 'None'}`, 20, 104);
     }
 
     doc.text('-------------------------------------------------------------', 20, 112);
@@ -95,10 +119,20 @@ export default function Patients() {
     doc.save(`DoctorNote_${note.patient_name}.pdf`);
   };
 
-  const handleDelete = (id) => {
-    fetch(`/doctor-notes/${id}`, { method: 'DELETE' }).then(() =>
-      setNotes(notes.filter((n) => n.id !== id))
-    );
+  const handleDelete = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_BASE}/doctor-notes/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) throw new Error('Failed to delete note');
+      setNotes((prev) => prev.filter((n) => n.id !== id));
+    } catch (err) {
+      alert(err.message || 'Failed to delete note');
+    }
   };
 
   return (
@@ -134,18 +168,22 @@ export default function Patients() {
                     <>
                       <p><strong>Visit Date:</strong> {appointment.date}</p>
                       <p><strong>Visit Time:</strong> {appointment.time}</p>
-                      <p><strong>Symptoms:</strong> {appointment.symptoms.map(s => s.name).join(', ')}</p>
+                      <p>
+                        <strong>Symptoms:</strong>{' '}
+                        {appointment.symptoms && appointment.symptoms.length > 0
+                          ? appointment.symptoms.map(s => s.name).join(', ')
+                          : 'None'}
+                      </p>
                     </>
                   )}
-                <div className="action-buttons">
-  <button className="btn-book" onClick={() => handleDownload(note)}>
-    Download PDF
-  </button>
-  <button className="btn-delete" onClick={() => handleDelete(note.id)}>
-    Delete
-  </button>
-</div>
-
+                  <div className="action-buttons">
+                    <button className="btn-book" onClick={() => handleDownload(note)}>
+                      Download PDF
+                    </button>
+                    <button className="btn-delete" onClick={() => handleDelete(note.id)}>
+                      Delete
+                    </button>
+                  </div>
                 </div>
               );
             })
