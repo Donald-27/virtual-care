@@ -19,13 +19,19 @@ export default function DoctorLogin() {
     }),
     onSubmit: async (values, { setSubmitting, setErrors }) => {
       try {
-        const doctor = await fetchDoctorLogin(values);
-        if (doctor?.id) {
-          navigate(`/dashboard/${doctor.id}`);
+        const response = await fetchDoctorLogin(values);
+
+        if (response?.access_token && response.doctor?.id) {
+          // ✅ Save token to localStorage
+          localStorage.setItem("token", response.access_token);
+
+          // ✅ Redirect to doctor's dashboard
+          navigate(`/dashboard/${response.doctor.id}`);
         } else {
           setErrors({ password: 'Invalid login credentials' });
         }
       } catch (err) {
+        console.error("Login error:", err);
         setErrors({ password: 'Invalid login credentials' });
       } finally {
         setSubmitting(false);
