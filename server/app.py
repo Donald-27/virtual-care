@@ -24,8 +24,6 @@ jwt = JWTManager(app)
 @app.route('/')
 def home():
     return '<h1>VirtualCare Backend is Running</h1>'
-
-# ---------- AUTH ----------
 class DoctorLoginResource(Resource):
     def post(self):
         data = request.get_json()
