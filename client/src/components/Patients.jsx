@@ -86,7 +86,7 @@ export default function Patients() {
     if (appointment) {
       doc.text(`Visit Date  : ${appointment.date}`, 20, 88);
       doc.text(`Visit Time  : ${appointment.time}`, 20, 96);
-      doc.text(`Symptoms    : ${appointment.symptoms && appointment.symptoms.length > 0
+      doc.text(`Symptoms    : ${appointment.symptoms?.length > 0
         ? appointment.symptoms.map(s => s.name).join(', ')
         : 'None'}`, 20, 104);
     }
@@ -107,7 +107,6 @@ export default function Patients() {
     doc.text('-------------------------------------------------------------', 20, 198);
     doc.text('This note excuses patient from duties for medical reasons.', 20, 206);
     doc.text('Recommendation based on professional assessment.', 20, 214);
-
     doc.text('Signature:', 20, 222);
     doc.line(60, 220, 150, 220);
     doc.text('(Stamp Here)', 80, 228);
@@ -139,11 +138,12 @@ export default function Patients() {
     <div className="booking-container">
       <h2>Patient Portal</h2>
       <form onSubmit={handleLogin}>
-        <label>ID / Name:</label>
+        <label>Email / Phone / Name:</label>
         <input
           type="text"
           value={identifier}
           onChange={(e) => setIdentifier(e.target.value)}
+          placeholder="Enter email, phone number, or name"
           required
         />
         <button className="btn-book">Login</button>
@@ -170,7 +170,7 @@ export default function Patients() {
                       <p><strong>Visit Time:</strong> {appointment.time}</p>
                       <p>
                         <strong>Symptoms:</strong>{' '}
-                        {appointment.symptoms && appointment.symptoms.length > 0
+                        {appointment.symptoms?.length > 0
                           ? appointment.symptoms.map(s => s.name).join(', ')
                           : 'None'}
                       </p>

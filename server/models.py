@@ -6,7 +6,6 @@ appointment_symptoms = db.Table(
     db.Column('symptom_id', db.Integer, db.ForeignKey('symptoms.id'))
 )
 
-
 emergency_symptoms = db.Table(
     'emergency_symptoms',
     db.Column('emergency_id', db.Integer, db.ForeignKey('emergencies.id')),
@@ -38,6 +37,8 @@ class Patient(db.Model):
     name = db.Column(db.String, nullable=False)
     age = db.Column(db.Integer)
     identifier = db.Column(db.String)
+    email = db.Column(db.String)
+    phone_number = db.Column(db.String)
 
     appointments = db.relationship('Appointment', backref='patient', lazy=True)
     emergencies = db.relationship('EmergencyRequest', backref='patient', lazy=True)
@@ -48,7 +49,9 @@ class Patient(db.Model):
             "id": self.id,
             "name": self.name,
             "age": self.age,
-            "identifier": self.identifier
+            "identifier": self.identifier,
+            "email": self.email,            
+            "phone_number": self.phone_number  
         }
 
 class Symptom(db.Model):
@@ -85,6 +88,8 @@ class Appointment(db.Model):
             "doctor_department": self.doctor.department if self.doctor else None,
             "patient_id": self.patient_id,
             "patient_name": self.patient.name if self.patient else None,
+            "patient_email": self.patient.email if self.patient else None,         # ✅ Added
+            "patient_phone": self.patient.phone_number if self.patient else None,  # ✅ Added
             "date": self.date,
             "time": self.time,
             "status": self.status,

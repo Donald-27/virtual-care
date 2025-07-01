@@ -1,0 +1,158 @@
+.booking-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #f9f9fb;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.booking-container h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.booking-container h3 {
+  margin-top: 40px;
+  font-size: 22px;
+  color: #555;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 5px;
+}
+
+.alert {
+  margin: 15px 0;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.alert.success {
+  background-color: #e6ffed;
+  color: #2e7d32;
+  border: 1px solid #b6e9c8;
+}
+
+.alert.error {
+  background-color: #ffe6e6;
+  color: #c62828;
+  border: 1px solid #f5b6b6;
+}
+
+.appt-note-box {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  background-color: #fff;
+  margin-bottom: 25px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.appt-details p {
+  margin: 4px 0;
+  font-size: 15px;
+  color: #333;
+}
+
+.note-form {
+  margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  background-color: #f7f9fc;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.note-form label {
+  flex: 1 1 250px;
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  color: #444;
+}
+
+.note-form input {
+  margin-top: 6px;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.note-form input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.note-form button {
+  padding: 10px 16px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: auto;
+}
+
+.note-form button:hover {
+  background-color: #0056b3;
+  transform: scale(1.03);
+}
+
+.existing-note {
+  margin-top: 15px;
+  background-color: #f0f8ff;
+  border-left: 4px solid #007bff;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.existing-note p {
+  margin: 6px 0;
+  font-size: 14.5px;
+}
+
+.existing-note button {
+  margin-right: 12px;
+  margin-top: 10px;
+  padding: 8px 14px;
+  background-color: #4caf50;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.existing-note button:hover {
+  background-color: #3e8e41;
+  transform: scale(1.03);
+}
+
+.existing-note button:nth-child(2) {
+  background-color: #2196f3;
+}
+
+.existing-note button:nth-child(2):hover {
+  background-color: #1976d2;
+}
+
+.existing-note button:nth-child(3) {
+  background-color: #ff9800;
+}
+
+.existing-note button:nth-child(3):hover {
+  background-color: #e68900;
+}

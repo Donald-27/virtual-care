@@ -10,7 +10,6 @@ from flask_jwt_extended import (
 from config import db
 from models import Doctor, Patient, Appointment, EmergencyRequest, Symptom, DoctorNote
 
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///virtualcare.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -21,8 +20,6 @@ migrate = Migrate(app, db)
 api = Api(app)
 
 CORS(app, supports_credentials=True, resources={r"/*": {"origins": "*"}})
-
-
 
 jwt = JWTManager(app)
 
@@ -59,12 +56,13 @@ class PatientLoginResource(Resource):
             return {"error": "Identifier is required"}, 400
 
         patient = Patient.query.filter(
-            or_(
-                db.func.lower(Patient.identifier) == identifier,
-                db.func.lower(Patient.name) == identifier,
-                db.cast(Patient.id, db.String) == identifier
-            )
-        ).first()
+    or_(
+        db.func.lower(Patient.name) == identifier,
+        db.func.lower(Patient.email) == identifier,
+        db.func.lower(Patient.phone_number) == identifier
+    )
+).first()
+
 
         if not patient:
             return {"error": "No patient found with that information"}, 404
@@ -73,8 +71,6 @@ class PatientLoginResource(Resource):
         return {"access_token": token, "patient": patient.to_dict()}, 200
 
 api.add_resource(PatientLoginResource, '/patient-login')
-
-
 
 class DoctorsResource(Resource):
     def get(self):
@@ -88,7 +84,6 @@ class SingleDoctorResource(Resource):
 
 api.add_resource(SingleDoctorResource, '/doctors/<int:id>')
 
-
 class PatientsResource(Resource):
     def get(self):
         return [p.to_dict() for p in Patient.query.all()], 200
@@ -99,7 +94,9 @@ class PatientsResource(Resource):
             p = Patient(
                 name=data['name'],
                 age=data['age'],
-                identifier=data['identifier']
+                identifier=data['identifier'],
+                email=data.get('email'),
+                phone_number=data.get('phone_number')
             )
             db.session.add(p)
             db.session.commit()
@@ -108,7 +105,6 @@ class PatientsResource(Resource):
             return {"error": str(e)}, 400
 
 api.add_resource(PatientsResource, '/patients')
-
 
 class DoctorAppointmentsResource(Resource):
     @jwt_required()

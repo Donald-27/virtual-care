@@ -16,12 +16,12 @@ export default function BookingForm() {
     fetchDoctors().then(data => setDoctors(data || []));
   }, []);
 
-
   const formik = useFormik({
     initialValues: {
       age: '',
       patientName: '',
-      idOrBirthCert: '',
+      email: '',
+      phone: '',
       selectedDoctor: '',
       date: '',
       time: '',
@@ -34,14 +34,8 @@ export default function BookingForm() {
         .min(0, 'Age must be 0 or more'),
 
       patientName: Yup.string().required('Name is required'),
-
-      idOrBirthCert: Yup.string().when('age', (age, schema) => {
-        const numericAge = parseFloat(age);
-        if (numericAge >= 1) {
-          return schema.required('ID or Birth Cert is required');
-        }
-        return schema;
-      }),
+      email: Yup.string().email('Invalid email').required('Email is required'),
+      phone: Yup.string(), // optional
 
       selectedDoctor: Yup.string().required('Please select a doctor'),
       date: Yup.string().required('Date is required'),
@@ -50,14 +44,15 @@ export default function BookingForm() {
     }),
     onSubmit: async (values, { resetForm, setSubmitting }) => {
       setMessage('');
-      const { age, patientName, idOrBirthCert, selectedDoctor, date, time, additionalNotes } = values;
-      const identifier = parseFloat(age) < 1 ? patientName : idOrBirthCert;
+      const { age, patientName, email, phone, selectedDoctor, date, time, additionalNotes } = values;
 
       try {
         const patient = await createPatient({
           name: patientName,
-          identifier: identifier,
-          age: parseInt(age)
+          identifier: email,
+          age: parseInt(age),
+          email,
+          phone
         });
 
         const apptData = {
@@ -102,68 +97,45 @@ export default function BookingForm() {
           {touched.age && errors.age && <div className="error">{errors.age}</div>}
         </label>
 
-        {values.age !== '' && parseFloat(values.age) >= 18 && (
-          <label>
-            National ID Number:
-            <input
-              type="text"
-              name="idOrBirthCert"
-              value={values.idOrBirthCert}
-              onChange={handleChange}
-              placeholder="Enter ID number"
-            />
-            {touched.idOrBirthCert && errors.idOrBirthCert && (
-              <div className="error">{errors.idOrBirthCert}</div>
-            )}
-          </label>
-        )}
+        <label>
+          Full Name:
+          <input
+            type="text"
+            name="patientName"
+            value={values.patientName}
+            onChange={handleChange}
+            placeholder="Enter your full name"
+          />
+          {touched.patientName && errors.patientName && (
+            <div className="error">{errors.patientName}</div>
+          )}
+        </label>
 
-        {values.age !== '' && parseFloat(values.age) < 18 && parseFloat(values.age) >= 1 && (
-          <label>
-            Birth Certificate Number:
-            <input
-              type="text"
-              name="idOrBirthCert"
-              value={values.idOrBirthCert}
-              onChange={handleChange}
-              placeholder="Enter birth certificate number"
-            />
-            {touched.idOrBirthCert && errors.idOrBirthCert && (
-              <div className="error">{errors.idOrBirthCert}</div>
-            )}
-          </label>
-        )}
+        <label>
+          Email Address:
+          <input
+            type="email"
+            name="email"
+            value={values.email}
+            onChange={handleChange}
+            placeholder="Enter your email"
+          />
+          {touched.email && errors.email && (
+            <div className="error">{errors.email}</div>
+          )}
+        </label>
 
+        <label>
+          Phone Number (optional):
+          <input
+            type="text"
+            name="phone"
+            value={values.phone}
+            onChange={handleChange}
+            placeholder="Enter phone number"
+          />
+        </label>
 
-        {values.age !== '' && parseFloat(values.age) < 1 ? (
-          <label>
-            Infant's Full Name:
-            <input
-              type="text"
-              name="patientName"
-              value={values.patientName}
-              onChange={handleChange}
-              placeholder="Enter infant's name"
-            />
-            {touched.patientName && errors.patientName && (
-              <div className="error">{errors.patientName}</div>
-            )}
-          </label>
-        ) : (
-          <label>
-            Your Name:
-            <input
-              type="text"
-              name="patientName"
-              value={values.patientName}
-              onChange={handleChange}
-              placeholder="Enter your full name"
-            />
-            {touched.patientName && errors.patientName && (
-              <div className="error">{errors.patientName}</div>
-            )}
-          </label>
-        )}
         <label>
           Select Doctor:
           <select
