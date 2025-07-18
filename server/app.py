@@ -268,3 +268,10 @@ api.add_resource(PatientDoctorNotesResource, '/patients/<int:patient_id>/doctor-
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
+import os
+
+if __name__ == '__main__':
+    from flask_migrate import upgrade
+    with app.app_context():
+        upgrade()
+    app.run()
