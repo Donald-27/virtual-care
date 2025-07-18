@@ -35,8 +35,7 @@ export default function BookingForm() {
 
       patientName: Yup.string().required('Name is required'),
       email: Yup.string().email('Invalid email').required('Email is required'),
-      phone: Yup.string(), // optional
-
+      phone: Yup.string(), 
       selectedDoctor: Yup.string().required('Please select a doctor'),
       date: Yup.string().required('Date is required'),
       time: Yup.string().required('Time is required'),
